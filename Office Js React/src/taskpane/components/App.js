@@ -1,8 +1,5 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { DefaultButton } from "@fluentui/react";
-import Header from "./Header";
-import HeroList from "./HeroList";
 import Progress from "./Progress";
 
 /* global console, Excel, require */
@@ -17,20 +14,7 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.setState({
-      listItems: [
-        {
-          icon: "Ribbon",
-          primaryText: "Achieve more with Office integration",
-        },
-        {
-          icon: "Unlock",
-          primaryText: "Unlock features and functionality",
-        },
-        {
-          icon: "Design",
-          primaryText: "Create and visualize like a pro",
-        },
-      ],
+      
     });
   }
 
@@ -40,16 +24,7 @@ export default class App extends React.Component {
         /**
          * Insert your Excel code here
          */
-        const range = context.workbook.getSelectedRange();
-
-        // Read the range address
-        range.load("address");
-
-        // Update the fill color
-        range.format.fill.color = "yellow";
-
-        await context.sync();
-        console.log(`The range address was ${range.address}.`);
+        
       });
     } catch (error) {
       console.error(error);
@@ -63,23 +38,14 @@ export default class App extends React.Component {
       return (
         <Progress
           title={title}
-          logo={require("./../../../assets/logo-filled.png")}
-          message="Please sideload your addin to see app body."
+          message="Bitte in Excel öffnen."
         />
       );
     }
 
     return (
       <div className="ms-welcome">
-        <Header logo={require("./../../../assets/logo-filled.png")} title={this.props.title} message="Welcome" />
-        <HeroList message="Discover what Office Add-ins can do for you today!" items={this.state.listItems}>
-          <p className="ms-font-l">
-            Modify the source files, then click <b>Run</b>.
-          </p>
-          <DefaultButton className="ms-welcome__action" iconProps={{ iconName: "ChevronRight" }} onClick={this.click}>
-            Run
-          </DefaultButton>
-        </HeroList>
+        
       </div>
     );
   }
