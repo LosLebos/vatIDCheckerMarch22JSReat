@@ -1,6 +1,7 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import Progress from "./Progress";
+import { MainFormular } from "./Formular";
 
 /* global console, Excel, require */
 
@@ -45,7 +46,13 @@ export default class App extends React.Component {
 
     return (
       <div className="ms-welcome">
-        
+        <div className = "Header"> 
+          Header 
+        </div>
+        <div className = "mainBody">
+          <MainFormular></MainFormular>
+        </div>
+
       </div>
     );
   }
