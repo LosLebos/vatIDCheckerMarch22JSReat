@@ -47,7 +47,8 @@ export default class App extends React.Component {
     return (
       <div className="ms-welcome">
         <div className = "Header"> 
-          Header 
+          Header
+          LU26375245
         </div>
         <div className = "mainBody">
           <MainFormular></MainFormular>
