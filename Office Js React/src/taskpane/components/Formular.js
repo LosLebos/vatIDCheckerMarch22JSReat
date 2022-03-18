@@ -58,9 +58,12 @@ const callAPIandFillExcel = async (requesterVATID) => { // TODO 16.03. FIX this 
         console.log(selectedVatIDs)
     //create the json to post
         const ownAPIJsons = [];
+        console.log("selected vats: ") // 17.03. wird irgendwie nicht angezeigt. Ausserdem ist VatID nächste Zeile irgendwie nen Tupel und die API mag das nicht.
         selectedVatIDs.forEach((vatID) => {
+            console.log(vatID);
+            console.log(typeof vatID);
             ownAPIJsons.push(JSON.stringify({
-                vatID: vatID,
+                vatID: String(vatID),
                 traderName: "",
                 traderCompanyType: "",
                 traderStreet: "",
