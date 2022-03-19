@@ -48,22 +48,15 @@ const callAPIandFillExcel = async (requesterVATID) => { // TODO 16.03. FIX this 
         const worksheets = myExcelInstance.workbook.worksheets; //used later to determine name of new sheet
         worksheets.load("items/name");
         await myExcelInstance.sync();
-        console.log("Range Text: " + range.text)
-        const selectedVatIDs = [];
-        range.text.forEach((vatIDFromCell) => {
-            console.log("logging-3")
-            console.log(vatIDFromCell);
-            selectedVatIDs.push(vatIDFromCell)
-        });
-        console.log(selectedVatIDs)
+        console.log("rangetext", range.text)
+        const selectedVatIDs = range.text
     //create the json to post
         const ownAPIJsons = [];
-        console.log("selected vats: ") // 17.03. wird irgendwie nicht angezeigt. Ausserdem ist VatID nächste Zeile irgendwie nen Tupel und die API mag das nicht.
+         // 17.03. wird irgendwie nicht angezeigt. Ausserdem ist VatID nächste Zeile irgendwie nen Tupel und die API mag das nicht.
         selectedVatIDs.forEach((vatID) => {
-            console.log(vatID);
-            console.log(typeof vatID);
+            
             ownAPIJsons.push(JSON.stringify({
-                vatID: String(vatID),
+                vatID: vatID[0],
                 traderName: "",
                 traderCompanyType: "",
                 traderStreet: "",
@@ -72,12 +65,12 @@ const callAPIandFillExcel = async (requesterVATID) => { // TODO 16.03. FIX this 
                 requestervatID : requesterVATID
             }));
         });
-        console.log(ownAPIJsons)
+        console.log("ownJSONAPI", ownAPIJsons)
         const apiJSONResponse = await Promise.all(
             ownAPIJsons.map(makeTheAPICall)
         )
-        console.log(apiJSONResponse[0])
-
+        console.log("first apiJson response", apiJSONResponse[0])
+        console.log("makge the api call")
         //now write down the result on a new sheet:
         let ws
         const worksheetNames = [];
@@ -116,7 +109,6 @@ const callAPIandFillExcel = async (requesterVATID) => { // TODO 16.03. FIX this 
         //throw (error);
     //});
     
-    //vatIDTableBody.values = [[selectedVatIDs[0], result.countryCode, result.valid, result.traderName, result.traderAddress, result.requestIdentifier]];
     return await myExcelInstance.sync();
 };
 
