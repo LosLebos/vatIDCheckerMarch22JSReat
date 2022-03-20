@@ -65,12 +65,14 @@ const callAPIandFillExcel = async (requesterVATID) => { // TODO 16.03. FIX this 
                 requestervatID : requesterVATID
             }));
         });
-        console.log("ownJSONAPI", ownAPIJsons)
-        const apiJSONResponse = await Promise.all(
-            ownAPIJsons.map(makeTheAPICall)
-        )
+        console.log("ownJSONAPI", ownAPIJsons);
+        console.log("the other way: ",JSON.stringify(ownAPIJsons));
+        ///const apiJSONResponse = await Promise.all( /// this is pretty cool, but i dont want to send every line by itself.
+         //   ownAPIJsons.map(makeTheAPICall)
+        //)
+        const apiJSONResponse = await makeTheAPICall(ownAPIJsons)
+        
         console.log("first apiJson response", apiJSONResponse[0])
-        console.log("makge the api call")
         //now write down the result on a new sheet:
         let ws
         const worksheetNames = [];
@@ -78,12 +80,12 @@ const callAPIandFillExcel = async (requesterVATID) => { // TODO 16.03. FIX this 
             worksheets.items.forEach((worksheet => {
                 worksheetNames.push(worksheet.name);
             }))
-            console.log(worksheetNames)
             for (let i = 0; i < 10; i++) {
                 if (! worksheetNames.includes("VAT_IDs_by_Heegs_" + String(i))) {
                     ws = myExcelInstance.workbook.worksheets.add("VAT_IDs_by_Heegs_" + String(i));
                     break;
                 };
+            //TODO warning more than 10 sheets
             }
             
 
@@ -92,35 +94,42 @@ const callAPIandFillExcel = async (requesterVATID) => { // TODO 16.03. FIX this 
             throw (error);
         };
         let vatIDTableHead = ws.getRange("A1:F1");
-        vatIDTableHead.values = [["VatID", "Country", "isValid", "belongsToCompany", "Adress", "ConstelationID"]];
+        vatIDTableHead.values = [["VatID", "Country", "isValid", "TraderName", "Address", "ConstelationID"]];
         vatIDTableHead.format.fill.color = "grey";
         let lengthOfReturn = apiJSONResponse.length
-        console.log(lengthOfReturn)
-        //await myExcelInstance.sync() //TODO maybe unnessesary
-        for (let i = 0; i <= lengthOfReturn; i++) {
+        for (let i = 0; i < lengthOfReturn; i++) {
+            console.log({i})
             let currentRow = i + 2
-            let vatIDTableBodyRow = ws.getRange("A" + String(currentRow) + ":G" + String(currentRow)); 
-            vatIDTableBodyRow.values = [apiJSONResponse[i]]
+            let vatIDTableBodyRow = ws.getRange("A" + String(currentRow) + ":F" + String(currentRow)); 
+            let thisRowValues = [[apiJSONResponse[i].countryCode + apiJSONResponse[i].vatNumber, apiJSONResponse[i].countryCode, apiJSONResponse[i].valid, apiJSONResponse[i].traderName, apiJSONResponse[i].traderAddress, apiJSONResponse[i].requestIdentifier]];
+            vatIDTableBodyRow.values = thisRowValues
+            vatIDTableBodyRow.format.fill.color = "green";
+            console.log("thisRowValues" , thisRowValues);
+            await myExcelInstance.sync();
         }
         
 
-    })//.catch(function (error) {
-        //console.log("Error: " + error)
-        //throw (error);
-    //});
+    }).catch(function (error) {
+        console.log("Error: " + error)
+        throw (error);
+    });
     
     return await myExcelInstance.sync();
 };
 
 async function makeTheAPICall(apiJSON) {
+    console.log({apiJSON})
+    console.log(typeof apiJSON)
     try {
         let response = await fetch ("https://checkvatfirst.azurewebsites.net/api/httpTriggerOne", {
             method: "POST",
             header:{ 'Content-Type': 'application/json' },
             mode: "cors",
-            body: apiJSON
+            body: JSON.stringify(apiJSON)
         });
+        //console.log("response: " , await response.json())
         return await response.json();
+        
     } catch(error) {
         console.error(error);
         throw (error);
