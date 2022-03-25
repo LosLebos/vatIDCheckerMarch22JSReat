@@ -1,7 +1,9 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import * as fluentUI from '@fluentui/react';
 import { Checkbox, Stack, Label, PrimaryButton, ThemeSettingName } from '@fluentui/react'
 import { TextField } from '@fluentui/react';
+import { Spinner, SpinnerSize } from '@fluentui/react';
 
 
 
@@ -9,13 +11,23 @@ import { TextField } from '@fluentui/react';
 const MainFormular = () => {
     const [ustID, setustID] = React.useState("");
     const [enableUStID, setEnableUStID] = React.useState(false)
+    const [isLoading, setIsLoading] = React.useState(false)
+
+    
 
     const handleSubmit = (event) => {
         event.preventDefault();
     }
 
-    const handleButtonClick = (event) => {
-        callAPIandFillExcel(ustID)
+    
+
+    const handleButtonClick = () => {
+        debugger;
+        setIsLoading(true)
+        callAPIandFillExcel(ustID)//.then(setIsLoading(false)) // todo 25.03. spinner does not show at all , use effect tried to no avail yet.
+        
+        
+        
     }
 
     const handleCheckboxChange = () => {
@@ -27,7 +39,6 @@ const MainFormular = () => {
             <Checkbox label="Qualifiziert Prüfung" value = {enableUStID} onChange= { handleCheckboxChange }/> 
             <Label> 
                     Identifikation
-            
             <TextField 
                 prefix='Eigene USt-ID'
                 disabled={ !enableUStID }
@@ -35,20 +46,26 @@ const MainFormular = () => {
                 value = { ustID }
             />
             </Label>
-            <PrimaryButton text = "Prüfen" onClick= { handleButtonClick } />
-            
+            <PrimaryButton text = "Prüfen" onClick= { handleButtonClick } disabled= { isLoading }/>
+            { isLoading ? <Spinner label='Checking VAT IDs' size={ SpinnerSize.medium  } /> : "else" }
+            <Label> {String(isLoading)}</Label>
         </Stack>
     )
 }
 
 const callAPIandFillExcel = async (requesterVATID) => { 
     await Excel.run(async(myExcelInstance) => { //this probably shit to execute all the code within this await???
-        let range = myExcelInstance.workbook.getSelectedRange();
+        let range = myExcelInstance.workbook.getSelectedRange(); //throws an InvalidSelection Error if multiple selects
         range.load("text");
         const worksheets = myExcelInstance.workbook.worksheets; //used later to determine name of new sheet
         worksheets.load("items/name");
         await myExcelInstance.sync();
         console.log("rangetext", range.text)
+        for (let i=0; i < range.text.length; i++){
+            if (range.text[i] == ""){
+                throw new Error("Please do not select empty Cells.");
+            }
+        }
         const selectedVatIDs = range.text
     //create the json to post
         const ownAPIJsons = [];
@@ -100,7 +117,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
                     wsCreated = true;
                     break;
                 };
-            if (wsCreated = false) {
+            if (wsCreated = false) { //TODO does not work, never fires.
                 ws = myExcelInstance.workbook.worksheets.add() //Excel determines the name.
             }
             }
@@ -147,6 +164,11 @@ async function makeTheAPICall(apiJSON) {
         return response; //this just returns the promise, you have to await it to use.
         
     } catch(error) {
+        if (error instanceof InvalidSelection) { //getselectedRange return multiple ranges
+            //todo alert 
+            console.error(error);
+            throw (error);
+        }
         console.error(error);
         throw (error);
     };
