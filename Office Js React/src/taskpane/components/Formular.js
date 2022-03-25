@@ -12,21 +12,23 @@ const MainFormular = () => {
     const [ustID, setustID] = React.useState("");
     const [enableUStID, setEnableUStID] = React.useState(false)
     const [isLoading, setIsLoading] = React.useState(false)
-
     
 
     const handleSubmit = (event) => {
         event.preventDefault();
     }
 
-    
 
-    const handleButtonClick = () => {
-        debugger;
-        setIsLoading(true)
-        callAPIandFillExcel(ustID)//.then(setIsLoading(false)) // todo 25.03. spinner does not show at all , use effect tried to no avail yet.
-        
-        
+    const handleButtonClick = async () => {
+        try {
+            setIsLoading(true);
+            await callAPIandFillExcel(ustID);
+            setIsLoading(false);
+        } catch (error){
+            console.log(error); //TODO 25.03. fires with myExcelInstance is not deffined
+        } finally {
+            setIsLoading(false);
+        }
         
     }
 
@@ -47,8 +49,7 @@ const MainFormular = () => {
             />
             </Label>
             <PrimaryButton text = "Prüfen" onClick= { handleButtonClick } disabled= { isLoading }/>
-            { isLoading ? <Spinner label='Checking VAT IDs' size={ SpinnerSize.medium  } /> : "else" }
-            <Label> {String(isLoading)}</Label>
+            { isLoading ? <Spinner label='Checking VAT IDs' size={ SpinnerSize.medium  } /> : null }
         </Stack>
     )
 }
@@ -86,7 +87,6 @@ const callAPIandFillExcel = async (requesterVATID) => {
          //   ownAPIJsons.map(makeTheAPICall)
         //)
 
-        //TODO insert handling non 200
         
         const apiResponse = await makeTheAPICall(ownAPIJsons)
         const apiStatusResponse = await apiResponse.status;
@@ -141,16 +141,17 @@ const callAPIandFillExcel = async (requesterVATID) => {
             returnTable.rows.add(null, thisRowValues);
             
         };
-        console.log("end")
+        
         ws.getUsedRange().format.autofitColumns();
         ws.getUsedRange().format.autofitRows();
-
+        await myExcelInstance.sync();
     }).catch(function (error) {
         console.log("Error: " + error +  " +++++ " + error.stack)
         throw (error);
     });
+    console.log("end")
     
-    return await myExcelInstance.sync();
+    return "done"; 
 };
 
 async function makeTheAPICall(apiJSON) {
