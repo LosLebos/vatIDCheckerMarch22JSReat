@@ -4,7 +4,7 @@ import * as fluentUI from '@fluentui/react';
 import { Checkbox, Stack, Label, PrimaryButton, ThemeSettingName } from '@fluentui/react'
 import { TextField } from '@fluentui/react';
 import { Spinner, SpinnerSize } from '@fluentui/react';
-
+import { MessageBar, MessageBarType } from '@fluentui/react';
 
 
 
@@ -12,6 +12,7 @@ const MainFormular = () => {
     const [ustID, setustID] = React.useState("");
     const [enableUStID, setEnableUStID] = React.useState(false)
     const [isLoading, setIsLoading] = React.useState(false)
+    const [errorMessage, setErrorMessage] = React.useState("");
     
 
     const handleSubmit = (event) => {
@@ -24,8 +25,11 @@ const MainFormular = () => {
             setIsLoading(true);
             await callAPIandFillExcel(ustID);
             setIsLoading(false);
+            setErrorMessage("");
         } catch (error){
-            console.log(error); //TODO 25.03. fires with myExcelInstance is not deffined
+            console.log(error); 
+            debugger;
+            setErrorMessage(error)
         } finally {
             setIsLoading(false);
         }
@@ -35,6 +39,23 @@ const MainFormular = () => {
     const handleCheckboxChange = () => {
         setEnableUStID(!enableUStID)
     }
+
+    const handleMessageBarDismiss = () => {
+        setErrorMessage("");
+    }
+    const MyMessageBar = (props) => ( //without {} means return value directly
+    //i would rather have it as its own component file but then iwould have to use setErrorMessage()
+    //TODO untested due to no Error
+    <MessageBar
+      messageBarType={MessageBarType.error}
+      isMultiline={true}
+      onDismiss= { handleMessageBarDismiss }
+      dismissButtonAriaLabel="Close"
+    >
+      { props.message }
+    </MessageBar>
+  );
+
     return (
         <Stack>
             
@@ -50,6 +71,7 @@ const MainFormular = () => {
             </Label>
             <PrimaryButton text = "Prüfen" onClick= { handleButtonClick } disabled= { isLoading }/>
             { isLoading ? <Spinner label='Checking VAT IDs' size={ SpinnerSize.medium  } /> : null }
+            { errorMessage ? <MyMessageBar message = { errorMessage }/> : null }
         </Stack>
     )
 }
