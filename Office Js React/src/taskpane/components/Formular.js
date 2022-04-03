@@ -4,7 +4,8 @@ import * as fluentUI from '@fluentui/react';
 import { Checkbox, Stack, Label, PrimaryButton, ThemeSettingName } from '@fluentui/react'
 import { TextField } from '@fluentui/react';
 import { Spinner, SpinnerSize } from '@fluentui/react';
-import { MessageBar, MessageBarType } from '@fluentui/react';
+import { MyMessageBar } from './MyMessageBar';
+
 
 
 
@@ -12,7 +13,8 @@ const MainFormular = () => {
     const [ustID, setustID] = React.useState("");
     const [enableUStID, setEnableUStID] = React.useState(false)
     const [isLoading, setIsLoading] = React.useState(false)
-    const [errorMessage, setErrorMessage] = React.useState("");
+    const [returnMessage, setReturnMessage] = React.useState("");
+    const [successMessage, setSuccessMessage] = React.useState("");
     
 
     const handleSubmit = (event) => {
@@ -25,11 +27,11 @@ const MainFormular = () => {
             setIsLoading(true);
             await callAPIandFillExcel(ustID);
             setIsLoading(false);
-            setErrorMessage("");
+            setReturnMessage("");
+            setSuccessMessage("Erfolgreich!")
         } catch (error){
             console.log(error); 
-            debugger;
-            setErrorMessage(error)
+            setReturnMessage(error.message)
         } finally {
             setIsLoading(false);
         }
@@ -41,21 +43,10 @@ const MainFormular = () => {
     }
 
     const handleMessageBarDismiss = () => {
-        setErrorMessage("");
-    }
-    const MyMessageBar = (props) => ( //without {} means return value directly
-    //i would rather have it as its own component file but then iwould have to use setErrorMessage()
-    //TODO untested due to no Error
-    <MessageBar
-      messageBarType={MessageBarType.error}
-      isMultiline={true}
-      onDismiss= { handleMessageBarDismiss }
-      dismissButtonAriaLabel="Close"
-    >
-      { props.message }
-    </MessageBar>
-  );
-
+        setReturnMessage("");
+        setSuccessMessage("");
+    };
+    
     return (
         <Stack>
             
@@ -71,25 +62,28 @@ const MainFormular = () => {
             </Label>
             <PrimaryButton text = "Prüfen" onClick= { handleButtonClick } disabled= { isLoading }/>
             { isLoading ? <Spinner label='Checking VAT IDs' size={ SpinnerSize.medium  } /> : null }
-            { errorMessage ? <MyMessageBar message = { errorMessage }/> : null }
+            { returnMessage ? <MyMessageBar message = { returnMessage } messageType = "Error" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
+            { successMessage ? <MyMessageBar message = { successMessage } messageType = "Success" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
         </Stack>
     )
 }
 
 const callAPIandFillExcel = async (requesterVATID) => { 
-    await Excel.run(async(myExcelInstance) => { //this probably shit to execute all the code within this await???
+    await Excel.run(async(myExcelInstance) => { 
         let range = myExcelInstance.workbook.getSelectedRange(); //throws an InvalidSelection Error if multiple selects
         range.load("text");
         const worksheets = myExcelInstance.workbook.worksheets; //used later to determine name of new sheet
         worksheets.load("items/name");
         await myExcelInstance.sync();
         console.log("rangetext", range.text)
-        for (let i=0; i < range.text.length; i++){
-            if (range.text[i] == ""){
+        const selectedVatIDs = range.text
+        for (let i=0; i < selectedVatIDs.length; i++){
+            if (selectedVatIDs[i] == ""){
+
                 throw new Error("Please do not select empty Cells.");
             }
         }
-        const selectedVatIDs = range.text
+        
     //create the json to post
         const ownAPIJsons = [];
         
@@ -111,13 +105,12 @@ const callAPIandFillExcel = async (requesterVATID) => {
 
         
         const apiResponse = await makeTheAPICall(ownAPIJsons)
-        const apiStatusResponse = await apiResponse.status;
+        const apiStatusResponse = apiResponse.status;
         let apiJSONResponse;
         if (apiStatusResponse == 200 || apiStatusResponse == 201) {
             apiJSONResponse = await apiResponse.json();
         } else {
-           //apiJSONResponse = await apiResponse.json(); //TODO i still get the response here, because iam an idiot and do not know how to throw an error
-            throw "The API returned an Error with STatus Code " + String(apiStatusResponse)
+           throw "The API returned an Error with STatus Code " + String(apiStatusResponse)
         }
         
         
@@ -171,7 +164,6 @@ const callAPIandFillExcel = async (requesterVATID) => {
         console.log("Error: " + error +  " +++++ " + error.stack)
         throw (error);
     });
-    console.log("end")
     
     return "done"; 
 };
@@ -191,9 +183,10 @@ async function makeTheAPICall(apiJSON) {
             //todo alert 
             console.error(error);
             throw (error);
-        }
-        console.error(error);
-        throw (error);
+        } else {
+            throw (error);
+        };
+        
     };
 }
 
