@@ -111,19 +111,25 @@ const callAPIandFillExcel = async (requesterVATID) => {
             const chunk = ownAPIJsons.slice(i, i + chunkSize);
             apiReturnPromises.push(makeTheAPICall(chunk));
         };
-        console.log(apiReturnPromises);
         const apiResponses = await Promise.all(apiReturnPromises);
-        console.log(apiResponses);
-        console.log(await apiResponses[0].json())
-        const apiResponse = await makeTheAPICall(ownAPIJsons)
-        const apiStatusResponse = apiResponse.status;
-        let apiJSONResponse;
-        if (apiStatusResponse == 200 || apiStatusResponse == 201) {
-            apiJSONResponse = await apiResponse.json();
-        } else {
-            let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(apiStatusResponse))
-            throw apiCallResponseError
-        }
+        //check if one gave back wrong status
+        apiResponses.forEach(apiResponse => {
+            if (apiResponse.status != 200 && apiResponse.status != 201) {
+                let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(apiStatusResponse))
+                throw apiCallResponseError
+            }
+        });
+        
+        //grep all the JSONS
+        const apiJSONResponses = await Promise.all(apiResponses.map(responseObject => responseObject.json()))
+        const apiAllJSONResponses = apiJSONResponses.reduce(
+            (previousValue, currentValue) => {
+                console.log({previousValue})
+                console.log({currentValue})
+                return previousValue.concat(currentValue);
+            }, []
+        );
+        
         
         
         
@@ -142,16 +148,14 @@ const callAPIandFillExcel = async (requesterVATID) => {
                 if (! worksheetNames.includes("VAT_IDs_by_Heegs_" + String(i))) {
                     ws = myExcelInstance.workbook.worksheets.add("VAT_IDs_by_Heegs_" + String(i));
                     numberOfRuns = String(i);
-                    console.log(wsCreated);
                     wsCreated = true;
                     break;
                 };
-            console.log(wsCreated);
+            }
             if (wsCreated == false) { 
-                console.log(wsCreated);
-                ws = myExcelInstance.workbook.worksheets.add() //Excel determines the name.
-            }
-            }
+                ws = myExcelInstance.workbook.worksheets.add() //Excel determines the name if more than 10 sheets
+            };
+           
         } catch (error) {
             console.error(error);
             throw (error);
@@ -162,11 +166,11 @@ const callAPIandFillExcel = async (requesterVATID) => {
         
         returnTable.getHeaderRowRange().values = [["VatID", "Country", "isValid", "TraderName", "Address", "ConstelationID"]];
         
-        let lengthOfReturn = apiJSONResponse.length;
+        //insert the values
+        let lengthOfReturn = apiAllJSONResponses.length;
         for (let i = 0; i < lengthOfReturn; i++) {
-            let thisRowValues = [[apiJSONResponse[i].countryCode + apiJSONResponse[i].vatNumber, apiJSONResponse[i].countryCode, apiJSONResponse[i].valid, apiJSONResponse[i].traderName, apiJSONResponse[i].traderAddress, apiJSONResponse[i].requestIdentifier]];
+            let thisRowValues = [[apiAllJSONResponses[i].countryCode + apiAllJSONResponses[i].vatNumber, apiAllJSONResponses[i].countryCode, apiAllJSONResponses[i].valid, apiAllJSONResponses[i].traderName, apiAllJSONResponses[i].traderAddress, apiAllJSONResponses[i].requestIdentifier]];
             returnTable.rows.add(null, thisRowValues);
-            
         };
         
         //format the table
