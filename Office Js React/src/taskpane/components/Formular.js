@@ -6,6 +6,8 @@ import { TextField } from '@fluentui/react';
 import { Spinner, SpinnerSize } from '@fluentui/react';
 import { MyMessageBar } from './MyMessageBar';
 
+var myConfig = require('../../../config.json');
+
 
 
 
@@ -24,11 +26,13 @@ const MainFormular = () => {
 
     const handleButtonClick = async () => {
         try {
+            setReturnMessage("");
+            setSuccessMessage("");
             setIsLoading(true);
             await callAPIandFillExcel(ustID);
             setIsLoading(false);
             setReturnMessage("");
-            setSuccessMessage("Erfolgreich!")
+            setSuccessMessage(myConfig.SuccessMessage)
         } catch (error){
             console.log(error); 
             setReturnMessage(error.message)
@@ -50,18 +54,18 @@ const MainFormular = () => {
     return (
         <Stack>
             
-            <Checkbox label="Qualifiziert Prüfung" value = {enableUStID} onChange= { handleCheckboxChange }/> 
+            <Checkbox label={myConfig.CheckboxLabel} value = {enableUStID} onChange= { handleCheckboxChange }/> 
             <Label> 
-                    Identifikation
+                    {myConfig.TextFieldLabelText}
             <TextField 
-                prefix='Eigene USt-ID'
+                prefix={myConfig.TextFieldPrefix}
                 disabled={ !enableUStID }
                 onChange = { (e) => setustID(e.target.value) }
                 value = { ustID }
             />
             </Label>
-            <PrimaryButton text = "Prüfen" onClick= { handleButtonClick } disabled= { isLoading }/>
-            { isLoading ? <Spinner label='Checking VAT IDs' size={ SpinnerSize.medium  } /> : null }
+            <PrimaryButton text = {myConfig.SendButtonText} onClick= { handleButtonClick } disabled= { isLoading }/>
+            { isLoading ? <Spinner label= {myConfig.SpinnerInitialText} size={ SpinnerSize.medium  } /> : null }
             { returnMessage ? <MyMessageBar message = { returnMessage } messageType = "Error" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
             { successMessage ? <MyMessageBar message = { successMessage } messageType = "Success" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
         </Stack>
@@ -145,8 +149,8 @@ const callAPIandFillExcel = async (requesterVATID) => {
                 worksheetNames.push(worksheet.name);
             }))
             for (let i = 0; i < 10; i++) {
-                if (! worksheetNames.includes("VAT_IDs_by_Heegs_" + String(i))) {
-                    ws = myExcelInstance.workbook.worksheets.add("VAT_IDs_by_Heegs_" + String(i));
+                if (! worksheetNames.includes(myConfig.NewSheetsNamePrefix + String(i))) {
+                    ws = myExcelInstance.workbook.worksheets.add(myConfig.NewSheetsNamePrefix + String(i));
                     numberOfRuns = String(i);
                     wsCreated = true;
                     break;
@@ -187,7 +191,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
 
 async function makeTheAPICall(apiJSON) {
     try {
-        let response = await fetch ("https://checkvatfirst.azurewebsites.net/api/httpTriggerOne", {
+        let response = await fetch (myConfig.APIAdress, {
             method: "POST",
             header:{ 'Content-Type': 'application/json' },
             mode: "cors", //i could make this better and safer, not using cors but a backend to call the api

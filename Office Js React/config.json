@@ -1,0 +1,11 @@
+{
+    "SuccessMessage": "Success!",
+    "TextFieldPrefix": "Own Vat ID:",
+    "CheckboxLabel": "Qualified Check",
+    "SendButtonText": "Check",
+    "SpinnerInitialText": "Checking Vat IDs",
+    "NewSheetsNamePrefix": "VAT_IDs_by_Heegs_",
+    "TextFieldLabelText": "Identification",
+    "APIAdress": "https://checkvatfirst.azurewebsites.net/api/httpTriggerOne"
+}
+
