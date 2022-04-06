@@ -75,20 +75,14 @@ const callAPIandFillExcel = async (requesterVATID) => {
         const worksheets = myExcelInstance.workbook.worksheets; //used later to determine name of new sheet
         worksheets.load("items/name");
         await myExcelInstance.sync();
-        console.log("rangetext", range.text)
         const selectedVatIDs = range.text
-        for (let i=0; i < selectedVatIDs.length; i++){
-            if (selectedVatIDs[i] == ""){
-
-                throw new Error("Please do not select empty Cells.");
-            }
-        }
+        
         
     //create the json to post
         const ownAPIJsons = [];
         
         selectedVatIDs.forEach((vatID) => {
-            
+            if (vatID[0] != "") {
             ownAPIJsons.push(JSON.stringify({
                 vatID: vatID[0],
                 traderName: "",
@@ -97,20 +91,38 @@ const callAPIandFillExcel = async (requesterVATID) => {
                 traderPostcode: "",
                 traderCity: "",
                 requestervatID : requesterVATID
-            }));
+            }))
+        };
         });
         ///const apiJSONResponse = await Promise.all( /// this is pretty cool, but i dont want to send every line by itself.
          //   ownAPIJsons.map(makeTheAPICall)
         //)
 
+        //break it up in Chunks of 40
         
+        const maxAPICalls = 2000
+        if (ownAPIJsons.length > maxAPICalls){
+            let maxAPICallError = new Error("You can send a Maximum of " + String(maxAPICalls) + " Vat IDs over the App at once. Pls send them in Chunks");
+            throw maxAPICallError;
+        }
+        const chunkSize = 2;
+        const apiReturnPromises = [];
+        for (let i = 0; i < ownAPIJsons.length; i += chunkSize) {
+            const chunk = ownAPIJsons.slice(i, i + chunkSize);
+            apiReturnPromises.push(makeTheAPICall(chunk));
+        };
+        console.log(apiReturnPromises);
+        const apiResponses = await Promise.all(apiReturnPromises);
+        console.log(apiResponses);
+        console.log(await apiResponses[0].json())
         const apiResponse = await makeTheAPICall(ownAPIJsons)
         const apiStatusResponse = apiResponse.status;
         let apiJSONResponse;
         if (apiStatusResponse == 200 || apiStatusResponse == 201) {
             apiJSONResponse = await apiResponse.json();
         } else {
-           throw "The API returned an Error with STatus Code " + String(apiStatusResponse)
+            let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(apiStatusResponse))
+            throw apiCallResponseError
         }
         
         
@@ -122,6 +134,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
         let numberOfRuns = 0;
         const worksheetNames = [];
         try { 
+            
             worksheets.items.forEach((worksheet => {
                 worksheetNames.push(worksheet.name);
             }))
@@ -129,10 +142,13 @@ const callAPIandFillExcel = async (requesterVATID) => {
                 if (! worksheetNames.includes("VAT_IDs_by_Heegs_" + String(i))) {
                     ws = myExcelInstance.workbook.worksheets.add("VAT_IDs_by_Heegs_" + String(i));
                     numberOfRuns = String(i);
+                    console.log(wsCreated);
                     wsCreated = true;
                     break;
                 };
-            if (wsCreated = false) { //TODO does not work, never fires.
+            console.log(wsCreated);
+            if (wsCreated == false) { 
+                console.log(wsCreated);
                 ws = myExcelInstance.workbook.worksheets.add() //Excel determines the name.
             }
             }
@@ -142,13 +158,9 @@ const callAPIandFillExcel = async (requesterVATID) => {
         };
 
         //create a table for this.
-        let returnTable = ws.tables.add("A1:F1", true);
-        if (wsCreated) { //you cannot name two talbes the same.
-            returnTable.name = "VAT_IDs_by_Heegs" + numberOfRuns;
-        }
+        let returnTable = ws.tables.add("A1:F1", true); //any name
         
         returnTable.getHeaderRowRange().values = [["VatID", "Country", "isValid", "TraderName", "Address", "ConstelationID"]];
-        //returnTable.getHeaderRowRange().format.fill.color = "grey";
         
         let lengthOfReturn = apiJSONResponse.length;
         for (let i = 0; i < lengthOfReturn; i++) {
@@ -157,6 +169,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
             
         };
         
+        //format the table
         ws.getUsedRange().format.autofitColumns();
         ws.getUsedRange().format.autofitRows();
         await myExcelInstance.sync();
@@ -173,21 +186,16 @@ async function makeTheAPICall(apiJSON) {
         let response = await fetch ("https://checkvatfirst.azurewebsites.net/api/httpTriggerOne", {
             method: "POST",
             header:{ 'Content-Type': 'application/json' },
-            mode: "cors", //i could make this better and safer, not using cors but another backend to call the api
+            mode: "cors", //i could make this better and safer, not using cors but a backend to call the api
             body: JSON.stringify(apiJSON)
         });
         return response; //this just returns the promise, you have to await it to use.
         
     } catch(error) {
-        if (error instanceof InvalidSelection) { //getselectedRange return multiple ranges
-            //todo alert 
-            console.error(error);
-            throw (error);
-        } else {
-            throw (error);
-        };
-        
+        throw (error);
     };
+        
+    
 }
 
 export { MainFormular }

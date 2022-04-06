@@ -18,7 +18,7 @@ const MyMessageBar = (props) => {
     return(
     <>
     <MessageBar
-      messageBarType={MessageBarType.error}
+      messageBarType={currentMessageType}
       isMultiline={true}
       onDismiss= { props.handleMessageBarDismiss }
       dismissButtonAriaLabel="Close"
