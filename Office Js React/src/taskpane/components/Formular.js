@@ -98,18 +98,15 @@ const callAPIandFillExcel = async (requesterVATID) => {
             }))
         };
         });
-        ///const apiJSONResponse = await Promise.all( /// this is pretty cool, but i dont want to send every line by itself.
-         //   ownAPIJsons.map(makeTheAPICall)
-        //)
 
-        //break it up in Chunks of 40
+        //break it up in Chunks
         
-        const maxAPICalls = 2000
+        const maxAPICalls = myConfig.MaxApiCalls
         if (ownAPIJsons.length > maxAPICalls){
-            let maxAPICallError = new Error("You can send a Maximum of " + String(maxAPICalls) + " Vat IDs over the App at once. Pls send them in Chunks");
+            let maxAPICallError = new Error("You can send a Maximum of " + String(maxAPICalls) + " Vat IDs over the App at once. Pls send them in several parts or refer to the developer.");
             throw maxAPICallError;
         }
-        const chunkSize = 2;
+        const chunkSize = myConfig.chunkSize;
         const apiReturnPromises = [];
         for (let i = 0; i < ownAPIJsons.length; i += chunkSize) {
             const chunk = ownAPIJsons.slice(i, i + chunkSize);
@@ -119,17 +116,15 @@ const callAPIandFillExcel = async (requesterVATID) => {
         //check if one gave back wrong status
         apiResponses.forEach(apiResponse => {
             if (apiResponse.status != 200 && apiResponse.status != 201) {
-                let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(apiStatusResponse))
+                let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(apiStatusResponse)+ "- Please refer to the Developer.")
                 throw apiCallResponseError
             }
         });
         
         //grep all the JSONS
         const apiJSONResponses = await Promise.all(apiResponses.map(responseObject => responseObject.json()))
-        const apiAllJSONResponses = apiJSONResponses.reduce(
+        const apiAllJSONResponses = apiJSONResponses.reduce( //add together all the JSONs from the different Responses
             (previousValue, currentValue) => {
-                console.log({previousValue})
-                console.log({currentValue})
                 return previousValue.concat(currentValue);
             }, []
         );
@@ -172,8 +167,17 @@ const callAPIandFillExcel = async (requesterVATID) => {
         
         //insert the values
         let lengthOfReturn = apiAllJSONResponses.length;
+        console.log(ownAPIJsons[1])
         for (let i = 0; i < lengthOfReturn; i++) {
-            let thisRowValues = [[apiAllJSONResponses[i].countryCode + apiAllJSONResponses[i].vatNumber, apiAllJSONResponses[i].countryCode, apiAllJSONResponses[i].valid, apiAllJSONResponses[i].traderName, apiAllJSONResponses[i].traderAddress, apiAllJSONResponses[i].requestIdentifier]];
+            let thisRowValues = []
+            if(apiAllJSONResponses[i]) {
+                console.log(apiAllJSONResponses[i])
+                thisRowValues = [[apiAllJSONResponses[i].countryCode + apiAllJSONResponses[i].vatNumber, apiAllJSONResponses[i].countryCode, apiAllJSONResponses[i].valid, apiAllJSONResponses[i].traderName, apiAllJSONResponses[i].traderAddress, apiAllJSONResponses[i].requestIdentifier]];
+            } else {
+                console.log("test")
+                thisRowValues = [ownAPIJsons[i].vatID, "", "not a VatID", "","", ""];
+                console.log({thisRowValues})
+            };
             returnTable.rows.add(null, thisRowValues);
         };
         

@@ -6,6 +6,8 @@
     "SpinnerInitialText": "Checking Vat IDs",
     "NewSheetsNamePrefix": "VAT_IDs_by_Heegs_",
     "TextFieldLabelText": "Identification",
-    "APIAdress": "https://checkvatfirst.azurewebsites.net/api/httpTriggerOne"
+    "APIAdress": "https://checkvatfirst.azurewebsites.net/api/httpTriggerOne",
+    "MaxApiCalls": 1000,
+    "chunkSize": 2
 }
 
