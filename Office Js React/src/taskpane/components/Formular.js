@@ -118,8 +118,9 @@ const callAPIandFillExcel = async (requesterVATID) => {
         for (const thisApiResponse of apiResponses) { //foreach() does not work with Async Await as expected.
             if (thisApiResponse.status != 200 && thisApiResponse.status != 201) {
                 let statusResponseText = await thisApiResponse.text();
+                console.log(thisApiResponse)
                 console.log({statusResponseText})
-                let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(thisApiResponse.status)+ "-"+statusResponseText+"- Please refer to the Developer.")
+                let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(thisApiResponse.status)+ "-"+statusResponseText+"- Please refer to the Developer if you cannot resolve this issue.")
                 throw apiCallResponseError
             }
         };
