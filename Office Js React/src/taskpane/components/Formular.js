@@ -87,7 +87,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
         
         selectedVatIDs.forEach((vatID) => {
             if (vatID[0] != "") {
-            ownAPIJsons.push(JSON.stringify({
+            ownAPIJsons.push({
                 vatID: vatID[0],
                 traderName: "",
                 traderCompanyType: "",
@@ -95,7 +95,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
                 traderPostcode: "",
                 traderCity: "",
                 requestervatID : requesterVATID
-            }))
+            })//creates a JavaScriptObject
         };
         });
 
@@ -113,13 +113,16 @@ const callAPIandFillExcel = async (requesterVATID) => {
             apiReturnPromises.push(makeTheAPICall(chunk));
         };
         const apiResponses = await Promise.all(apiReturnPromises);
+        
         //check if one gave back wrong status
-        apiResponses.forEach(apiResponse => {
-            if (apiResponse.status != 200 && apiResponse.status != 201) {
-                let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(apiStatusResponse)+ "- Please refer to the Developer.")
+        for (const thisApiResponse of apiResponses) { //foreach() does not work with Async Await as expected.
+            if (thisApiResponse.status != 200 && thisApiResponse.status != 201) {
+                let statusResponseText = await thisApiResponse.text();
+                console.log({statusResponseText})
+                let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(thisApiResponse.status)+ "-"+statusResponseText+"- Please refer to the Developer.")
                 throw apiCallResponseError
             }
-        });
+        };
         
         //grep all the JSONS
         const apiJSONResponses = await Promise.all(apiResponses.map(responseObject => responseObject.json()))
@@ -199,7 +202,7 @@ async function makeTheAPICall(apiJSON) {
             method: "POST",
             header:{ 'Content-Type': 'application/json' },
             mode: "cors", //i could make this better and safer, not using cors but a backend to call the api
-            body: JSON.stringify(apiJSON)
+            body: JSON.stringify(apiJSON) //sends the javascript object as  JSON String
         });
         return response; //this just returns the promise, you have to await it to use.
         
