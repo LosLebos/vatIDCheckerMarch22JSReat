@@ -2,7 +2,7 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import Progress from "./Progress";
 import { MainFormular } from "./Formular";
-
+import { FeedbackTab } from "./Feedback";
 /* global console, Excel, require */
 
 export default class App extends React.Component {
@@ -52,6 +52,7 @@ export default class App extends React.Component {
         </div>
         <div className = "mainBody">
           <MainFormular></MainFormular>
+          <FeedbackTab></FeedbackTab>
         </div>
 
       </div>

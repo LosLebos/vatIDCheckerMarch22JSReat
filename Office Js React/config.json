@@ -8,6 +8,7 @@
     "TextFieldLabelText": "Identification",
     "APIAdress": "https://checkvatfirst.azurewebsites.net/api/httpTriggerOne",
     "MaxApiCalls": 1000,
-    "chunkSize": 2
+    "chunkSize": 2,
+    "FeedbackAPIAdress": "https://prod-19.northcentralus.logic.azure.com:443/workflows/3a4de58c10c8405c845080657592d671/triggers/request/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Frequest%2Frun&sv=1.0&sig=4qW5vORFhnjM7p_39y-ru4sYbXLmEa3q0cPJt4rgxUA"
 }
 
