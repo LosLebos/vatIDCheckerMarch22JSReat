@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import * as fluentUI from '@fluentui/react';
-import { Checkbox, Stack, Label, PrimaryButton, ThemeSettingName } from '@fluentui/react'
+import { Checkbox, Stack, Label, PrimaryButton, ThemeSettingName, Text } from '@fluentui/react'
 import { TextField } from '@fluentui/react';
 import { Spinner, SpinnerSize } from '@fluentui/react';
 import { MyMessageBar } from './MyMessageBar';
@@ -50,6 +50,17 @@ const MainFormular = () => {
         setReturnMessage("");
         setSuccessMessage("");
     };
+
+    const handleBindingButton = () => {
+        Office.context.document.bindings.addFromPromptAsync(
+            Office.BindingType.Matrix,
+            { id: 'MyBinding', promptText: 'Select text to bind to.' },
+            function (asyncResult) {
+                console.log(asyncResult.status); //Todo find the values in the MAtrix
+                console.log(asyncResult.value)
+            }
+        )
+    }
     
     return (
         <Stack>
@@ -65,6 +76,8 @@ const MainFormular = () => {
             />
             </Label>
             <PrimaryButton text = {myConfig.SendButtonText} onClick= { handleButtonClick } disabled= { isLoading }/>
+            <PrimaryButton text='Test Binding' onClick={ handleBindingButton }/>
+            <Text id='message'/>
             { isLoading ? <Spinner label= {myConfig.SpinnerInitialText} size={ SpinnerSize.medium  } /> : null }
             { returnMessage ? <MyMessageBar message = { returnMessage } messageType = "Error" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
             { successMessage ? <MyMessageBar message = { successMessage } messageType = "Success" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
