@@ -50,14 +50,33 @@ const MainFormular = () => {
         setReturnMessage("");
         setSuccessMessage("");
     };
-
-    const handleBindingButton = () => {
+    const handleBindingButton= async() => {
+        Office.context.document.bindings.addFromPromptAsync(
+            Office.BindingType.Matrix,
+            { id: 'bindingVatIdsRange', promptText: 'Select the given Vat IDs:' }
+            //just create the binding via prompt over the common API 2013
+        )
+        await Excel.run(async (context) => {
+            try{
+                let bindingVatIdsRange = context.workbook.bindings.getItem("bindingVatIdsRange") //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
+                let range = bindingVatIdsRange.getRange();
+                range.load("address");
+                range.select();
+                await context.sync();
+                console.log(range.address)
+            } catch (error) {
+                console.log(error.message)
+            }
+            
+        })
+    }
+    const handleBindingButtonOfficeAPI = () => {
         Office.context.document.bindings.addFromPromptAsync(
             Office.BindingType.Matrix,
             { id: 'MyBinding', promptText: 'Select text to bind to.' },
             function (asyncResult) {
                 console.log(asyncResult.status); //Todo find the values in the MAtrix
-                console.log(asyncResult.value)
+                console.log(asyncResult.getRange())
             }
         )
     }
