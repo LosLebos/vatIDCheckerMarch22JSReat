@@ -3,7 +3,7 @@ import * as React from 'react';
 
 
 const MyMessageBar = (props) => {
-    //i would rather have it as its own component file but then i would have to use setErrorMessage() on a parent object?
+    
     
     let currentMessageType = 0;
     if (props.messageType) {

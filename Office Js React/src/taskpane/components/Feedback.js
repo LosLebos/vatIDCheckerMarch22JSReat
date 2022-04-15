@@ -9,7 +9,7 @@ var myConfig = require('../../../config.json');
 const FeedbackTab = () => {
     const [feedbackText, setFeedbackText] = React.useState("");
     const [successMessage, setSuccessMessage] = React.useState("");
-    const [isLoading, setIsLoading] = React.useState(false)
+    const [isLoading, setIsLoading] = React.useState(false);
 
 
     const handleSubmitButton = async() => {

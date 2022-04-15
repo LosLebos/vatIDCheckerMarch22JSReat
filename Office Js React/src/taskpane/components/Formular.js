@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import * as fluentUI from '@fluentui/react';
-import { Checkbox, Stack, Label, PrimaryButton, ThemeSettingName, Text } from '@fluentui/react'
+import { Checkbox, Stack, Label, PrimaryButton,  ThemeSettingName, Text } from '@fluentui/react'
 import { TextField } from '@fluentui/react';
 import { Spinner, SpinnerSize } from '@fluentui/react';
 import { MyMessageBar } from './MyMessageBar';
+import { CellBinders } from './CellBinders';
 
 var myConfig = require('../../../config.json');
 
@@ -17,6 +18,9 @@ const MainFormular = () => {
     const [isLoading, setIsLoading] = React.useState(false)
     const [returnMessage, setReturnMessage] = React.useState("");
     const [successMessage, setSuccessMessage] = React.useState("");
+    const [VatRange, setVatRange] = React.useState("");
+    const [CitiesRange, setCitiesRange] = React.useState("");
+    const [AreaCodeRange, setAreaCodeRange] = React.useState("");
     
 
     const handleSubmit = (event) => {
@@ -50,36 +54,7 @@ const MainFormular = () => {
         setReturnMessage("");
         setSuccessMessage("");
     };
-    const handleBindingButton= async() => {
-        Office.context.document.bindings.addFromPromptAsync(
-            Office.BindingType.Matrix,
-            { id: 'bindingVatIdsRange', promptText: 'Select the given Vat IDs:' }
-            //just create the binding via prompt over the common API 2013
-        )
-        await Excel.run(async (context) => {
-            try{
-                let bindingVatIdsRange = context.workbook.bindings.getItem("bindingVatIdsRange") //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
-                let range = bindingVatIdsRange.getRange();
-                range.load("address");
-                range.select();
-                await context.sync();
-                console.log(range.address)
-            } catch (error) {
-                console.log(error.message)
-            }
-            
-        })
-    }
-    const handleBindingButtonOfficeAPI = () => {
-        Office.context.document.bindings.addFromPromptAsync(
-            Office.BindingType.Matrix,
-            { id: 'MyBinding', promptText: 'Select text to bind to.' },
-            function (asyncResult) {
-                console.log(asyncResult.status); //Todo find the values in the MAtrix
-                console.log(asyncResult.getRange())
-            }
-        )
-    }
+
     
     return (
         <Stack>
@@ -95,8 +70,7 @@ const MainFormular = () => {
             />
             </Label>
             <PrimaryButton text = {myConfig.SendButtonText} onClick= { handleButtonClick } disabled= { isLoading }/>
-            <PrimaryButton text='Test Binding' onClick={ handleBindingButton }/>
-            <Text id='message'/>
+            <CellBinders EnableBindings= { enableUStID } VatRange={ VatRange} setVatRange = { setVatRange} CitiesRange = {CitiesRange} setCitiesRange = {setCitiesRange} AreaCodeRange = {AreaCodeRange} setAreaCodeRange = {setAreaCodeRange}></CellBinders>
             { isLoading ? <Spinner label= {myConfig.SpinnerInitialText} size={ SpinnerSize.medium  } /> : null }
             { returnMessage ? <MyMessageBar message = { returnMessage } messageType = "Error" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
             { successMessage ? <MyMessageBar message = { successMessage } messageType = "Success" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
