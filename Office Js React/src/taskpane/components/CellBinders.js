@@ -70,7 +70,7 @@ const CellBinders = (props) => {
 
         await Excel.run(async (context) => {
             try{
-                let bindingAreaCodeRange = context.workbook.bindings.getItem("bindingAreaCodeRange") //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
+                let bindingAreaCodeRange = await context.workbook.bindings.getItem("bindingAreaCodeRange") //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
                 let range = bindingAreaCodeRange.getRange();
                 range.load("address");
                 range.select();
@@ -90,12 +90,12 @@ const CellBinders = (props) => {
         <>
             <Stack horizontal horizontalAlign='start'>
                 <DefaultButton
-                disabled={ !props.EnableBindings}
+                
                 text='Vat IDs Binding' onClick={ () => handleBindingButtonVat() }
         	    />
                 <TextField
                 prefix="Vat ID Range"
-                disabled= {!props.EnableBindings} //{ props.EnableBindings}
+                
                 onChange = { (e) => props.setVatRange(e.target.value) }
                 value = { props.VatRange }>
                 </TextField>
