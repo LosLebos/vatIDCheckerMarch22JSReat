@@ -91,11 +91,11 @@ const CellBinders = (props) => {
             <Stack horizontal horizontalAlign='start'>
                 <DefaultButton
                 
-                text='Vat IDs Binding' onClick={ () => handleBindingButtonVat() }
+                text='Vat IDs Range' onClick={ () => handleBindingButtonVat() }
         	    />
                 <TextField
-                prefix="Vat ID Range"
-                
+             //   prefix="Vat ID Range"
+                disabled = {true}
                 onChange = { (e) => props.setVatRange(e.target.value) }
                 value = { props.VatRange }>
                 </TextField>
@@ -103,11 +103,11 @@ const CellBinders = (props) => {
             <Stack horizontal>
             <DefaultButton
                 disabled={ !props.EnableBindings}
-                text='Cities Binding' onClick={ () =>handleBindingButtonCities() }
+                text='Cities Range' onClick={ () =>handleBindingButtonCities() }
         	/>
             <TextField
-                prefix="Cities Range"
-                disabled={ !props.EnableBindings}
+             //   prefix="Cities Range"
+                disabled={true}
                 onChange = { (e) => props.setCitiesRange(e.target.value) }
                 value = { props.CitiesRange }>
             </TextField>
@@ -115,11 +115,11 @@ const CellBinders = (props) => {
             <Stack horizontal>
             <DefaultButton
                 disabled={ !props.EnableBindings}
-                text='Area Code Binding' onClick={ () =>handleBindingButtonAreaCodes() }
+                text='Area Code Range' onClick={ () =>handleBindingButtonAreaCodes() }
         	/>
             <TextField 
-            prefix="Area Code Range"
-            disabled={ !props.EnableBindings}
+            //prefix="Area Code Range"
+            disabled={ true }
             onChange = { (e) => props.setAreaCodeRange(e.target.value) }
             value = { props.AreaCodeRange }>
             </TextField>

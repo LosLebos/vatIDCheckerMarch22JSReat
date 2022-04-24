@@ -74,8 +74,9 @@ const MainFormular = () => {
                 value = { ustID }
             />
             </Label>
+            <CellBinders EnableBindings= { enableUStID } VatRange={ VatRange} setVatRange = { setVatRange} CitiesRange = {CitiesRange} 
+                setCitiesRange = {setCitiesRange} AreaCodeRange = {AreaCodeRange} setAreaCodeRange = {setAreaCodeRange}></CellBinders>
             <PrimaryButton text = {myConfig.SendButtonText} onClick= { handleButtonClick } disabled= { isLoading }/>
-            <CellBinders EnableBindings= { enableUStID } VatRange={ VatRange} setVatRange = { setVatRange} CitiesRange = {CitiesRange} setCitiesRange = {setCitiesRange} AreaCodeRange = {AreaCodeRange} setAreaCodeRange = {setAreaCodeRange}></CellBinders>
             { isLoading ? <Spinner label= {myConfig.SpinnerInitialText} size={ SpinnerSize.medium  } /> : null }
             { returnMessage ? <MyMessageBar message = { returnMessage } messageType = "Error" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
             { successMessage ? <MyMessageBar message = { successMessage } messageType = "Success" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
@@ -99,10 +100,10 @@ const callAPIandFillExcel = async (requesterVATID) => {
             } else {
                 throw error;
             }
-            
         }
-                
+
         const selectedVatIDs = vatRange.text;
+
     //create the javascript object to post
         const ownAPIJsons = [];
         for ( let i = 0; i< selectedVatIDs.length; i++) {
