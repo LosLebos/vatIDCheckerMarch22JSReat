@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import * as fluentUI from '@fluentui/react';
-import { Stack, PrimaryButton, Text, DefaultButton } from '@fluentui/react'
+import { Stack, PrimaryButton, Text, DefaultButton, StackItem } from '@fluentui/react'
 import { TextField } from '@fluentui/react';
 import { MyMessageBar } from './MyMessageBar';
 var myConfig = require('../../../config.json');
@@ -88,21 +88,26 @@ const CellBinders = (props) => {
 
     return (
         <>
-            <Stack horizontal horizontalAlign='start'>
-                <DefaultButton
+        <Stack vertical gap = { 5 } style = {{ marginBottom: 10 }}>
+            <Stack horizontal horizontalAlign='center' style={{}}>
+                <Stack.Item>
+                    <DefaultButton
+                    text='Vat IDs Range' onClick={ () => handleBindingButtonVat() }
+        	        />
+                </Stack.Item>
+                <StackItem>
+                    <TextField
+                    //   prefix="Vat ID Range"
+                        disabled = {true}
+                        onChange = { (e) => props.setVatRange(e.target.value) }
+                        value = { props.VatRange }>
+                        </TextField>
+                </StackItem>
                 
-                text='Vat IDs Range' onClick={ () => handleBindingButtonVat() }
-        	    />
-                <TextField
-             //   prefix="Vat ID Range"
-                disabled = {true}
-                onChange = { (e) => props.setVatRange(e.target.value) }
-                value = { props.VatRange }>
-                </TextField>
             </Stack>
-            <Stack horizontal>
+            <Stack horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
-                disabled={ !props.EnableBindings}
+                disabled={ !props.EnableBindings }
                 text='Cities Range' onClick={ () =>handleBindingButtonCities() }
         	/>
             <TextField
@@ -112,7 +117,7 @@ const CellBinders = (props) => {
                 value = { props.CitiesRange }>
             </TextField>
             </Stack>
-            <Stack horizontal>
+            <Stack horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings}
                 text='Area Code Range' onClick={ () =>handleBindingButtonAreaCodes() }
@@ -124,6 +129,7 @@ const CellBinders = (props) => {
             value = { props.AreaCodeRange }>
             </TextField>
             </Stack>
+        </Stack>
             { errorMessage ? <MyMessageBar message = { errorMessage} messageType = "Error" handleMessageBarDismiss= { handleMessageBarDismiss } /> : null }
         </>
     )
