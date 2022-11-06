@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { useEffect } from 'react';
-import * as fluentUI from '@fluentui/react';
 import { Checkbox, Stack, Label, PrimaryButton,  ThemeSettingName, Text } from '@fluentui/react'
 import { TextField } from '@fluentui/react';
 import { Spinner, SpinnerSize } from '@fluentui/react';
 import { MyMessageBar } from './MyMessageBar';
 import { CellBinders } from './CellBinders';
 
-var myConfig = require('../../../config.json');
+var myConfig = require('../../../config.json'); //TODO Multilanguage Support
 
 
 
@@ -23,7 +22,7 @@ const MainFormular = () => {
     const [AreaCodeRange, setAreaCodeRange] = React.useState("");
     
 
-    const handleSubmit = (event) => {
+    const handleSubmit = (event) => { //unused.
         event.preventDefault();
     }
 
@@ -62,7 +61,7 @@ const MainFormular = () => {
 
     
     return (
-        <Stack>
+        <Stack> 
             
             <Checkbox label={myConfig.CheckboxLabel} value = {enableUStID} onChange= { handleCheckboxChange }/> 
             <Label> 
@@ -95,7 +94,6 @@ const callAPIandFillExcel = async (requesterVATID) => {
             await myExcelInstance.sync();
         } catch (error) {
             if (error.code == "ItemNotFound") {
-                console.log("Item not found")
                 throw new Error ("Item not found - Please select a Vat IDs Range.")
             } else {
                 throw error;
@@ -131,7 +129,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
         for (let i = 0; i < ownAPIJsons.length; i += chunkSize) {
             const chunk = ownAPIJsons.slice(i, i + chunkSize);
             apiReturnPromises.push(makeTheAPICall(chunk));
-        };
+        }; //TODO Test what happends if ChunkSize > lenght.
         const apiResponses = await Promise.all(apiReturnPromises);
         
         //check if one gave back wrong status
@@ -141,7 +139,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
                 console.log(thisApiResponse)
                 console.log({statusResponseText})
                 let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(thisApiResponse.status)+ "-"+statusResponseText+"- Please refer to the Developer if you cannot resolve this issue.")
-                throw apiCallResponseError
+                throw apiCallResponseError //TODO Who catches this Error?
             }
         };
         
@@ -337,7 +335,7 @@ const callAPIandFillExcelQualified = async (requesterVATID) => {
             } else {
                 console.log("test")
                 thisRowValues = [ownAPIJsons[i].vatID, "", "not a VatID", "","", ""];
-                console.log({thisRowValues})
+                
             };
             returnTable.rows.add(null, thisRowValues);
         };
