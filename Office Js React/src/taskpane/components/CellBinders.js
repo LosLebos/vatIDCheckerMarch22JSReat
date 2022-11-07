@@ -18,19 +18,22 @@ const CellBinders = (props) => {
         props.setVatRange("");
         props.setCitiesRange("");
         props.setAreaCodeRange("");
+        props.setCompanyNameRange("");
+        props.setCompanyTypeRange("");
       }, [props.EnableBindings]);
     
-    const handleBindingButtonVat= async() => {
+    const handleBindingButton= async(rangeType) => {
         Office.context.document.bindings.addFromPromptAsync(
             Office.BindingType.Matrix,
-            { id: 'bindingVatIdsRange', promptText: 'Select the given Vat Ids:' }
+            { id: rangeType, promptText: 'Select the given ' & rangeType & ':' }
             //just create the binding via prompt over the common API 2013
+            // in hindsight , i dont remember the difference between this API 2013 call and the later API 2016 call.
         )
 
         await Excel.run(async (context) => {
             try{
-                let bindingVatIdsRange = context.workbook.bindings.getItem("bindingVatIdsRange") //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
-                let range = bindingVatIdsRange.getRange();
+                let bindingRange = context.workbook.bindings.getItem(rangeType) //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
+                let range = bindingRange.getRange();
                 range.load("address");
                 range.select();
                 await context.sync();
@@ -41,47 +44,7 @@ const CellBinders = (props) => {
             
         })
     }
-    const handleBindingButtonCities= async() => {
-        Office.context.document.bindings.addFromPromptAsync(
-            Office.BindingType.Matrix,
-            { id: 'bindingCitiesRange', promptText: 'Select the given Cities:' }
-        )
-
-        await Excel.run(async (context) => {
-            try{
-                let bindingCitiesRange = context.workbook.bindings.getItem("bindingCitiesRange") //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
-                let range = bindingCitiesRange.getRange();
-                range.load("address");
-                range.select();
-                await context.sync();
-                props.setCitiesRange(range.address);
-            } catch (error) {
-                console.log(error.message)
-            }
-            
-        })
-    }
-    const handleBindingButtonAreaCodes= async() => {
-        Office.context.document.bindings.addFromPromptAsync(
-            Office.BindingType.Matrix,
-            { id: 'bindingAreaCodeRange', promptText: 'Select the given AreaCode:' }
-            //just create the binding via prompt over the common API 2013
-        )
-
-        await Excel.run(async (context) => {
-            try{
-                let bindingAreaCodeRange = await context.workbook.bindings.getItem("bindingAreaCodeRange") //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
-                let range = bindingAreaCodeRange.getRange();
-                range.load("address");
-                range.select();
-                await context.sync();
-                props.setAreaCodeRange(range.address);
-            } catch (error) {
-                setErrorMessage = error.message;
-            }
-            
-        })
-    }
+    
     const handleMessageBarDismiss = () => {
         setErrorMessage("");
     };
@@ -92,7 +55,7 @@ const CellBinders = (props) => {
             <Stack horizontal horizontalAlign='center' style={{}}>
                 <Stack.Item>
                     <DefaultButton
-                    text='Vat IDs Range' onClick={ () => handleBindingButtonVat() }
+                    text='Vat IDs Range' onClick={ () => handleBindingButton("bindingVatIdsRange") }
         	        />
                 </Stack.Item>
                 <StackItem>
@@ -108,7 +71,7 @@ const CellBinders = (props) => {
             <Stack horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings }
-                text='Cities Range' onClick={ () =>handleBindingButtonCities() }
+                text='Cities Range' onClick={ () =>handleBindingButton('CitiesRange') }
         	/>
             <TextField
              //   prefix="Cities Range"
@@ -120,12 +83,36 @@ const CellBinders = (props) => {
             <Stack horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings}
-                text='Area Code Range' onClick={ () =>handleBindingButtonAreaCodes() }
+                text='Area Code Range' onClick={ () =>handleBindingButton('AreaCodesRange') }
         	/>
             <TextField 
             //prefix="Area Code Range"
             disabled={ true }
             onChange = { (e) => props.setAreaCodeRange(e.target.value) }
+            value = { props.AreaCodeRange }>
+            </TextField>
+            </Stack>
+            <Stack horizontal style={{}} horizontalAlign = "left">
+            <DefaultButton
+                disabled={ !props.EnableBindings}
+                text='Company Name Range' onClick={ () =>handleBindingButton('CompanyNames') }
+        	/>
+            <TextField 
+            //prefix="Area Code Range"
+            disabled={ true }
+            onChange = { (e) => props.setCompanyNameRange(e.target.value) }
+            value = { props.AreaCodeRange }>
+            </TextField>
+            </Stack>
+            <Stack horizontal style={{}} horizontalAlign = "left">
+            <DefaultButton
+                disabled={ !props.EnableBindings}
+                text='Company Type Range' onClick={ () =>handleBindingButton('CompanyTypes') }
+        	/>
+            <TextField 
+            //prefix="Area Code Range"
+            disabled={ true }
+            onChange = { (e) => props.setCompanyTypeRange(e.target.value) }
             value = { props.AreaCodeRange }>
             </TextField>
             </Stack>

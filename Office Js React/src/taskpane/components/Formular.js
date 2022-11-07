@@ -20,6 +20,8 @@ const MainFormular = () => {
     const [VatRange, setVatRange] = React.useState("");
     const [CitiesRange, setCitiesRange] = React.useState("");
     const [AreaCodeRange, setAreaCodeRange] = React.useState("");
+    const [CompanyNames, setCompanyNameRange] = React.useState("");
+    const [CompanyTypes, setCompanyTypeRange] = React.useState("");
     
 
     const handleSubmit = (event) => { //unused.
@@ -74,7 +76,8 @@ const MainFormular = () => {
             />
             </Label>
             <CellBinders EnableBindings= { enableUStID } VatRange={ VatRange} setVatRange = { setVatRange} CitiesRange = {CitiesRange} 
-                setCitiesRange = {setCitiesRange} AreaCodeRange = {AreaCodeRange} setAreaCodeRange = {setAreaCodeRange}></CellBinders>
+                setCitiesRange = {setCitiesRange} AreaCodeRange = {AreaCodeRange} setAreaCodeRange = {setAreaCodeRange} CompanyNames = {CompanyNames} setCompanyNameRange = { setCompanyNameRange}
+                CompanyTypes = {CompanyTypes} setCompanyTypeRange= {setCompanyTypeRange}></CellBinders>
             <PrimaryButton text = {myConfig.SendButtonText} onClick= { handleButtonClick } disabled= { isLoading }/>
             { isLoading ? <Spinner label= {myConfig.SpinnerInitialText} size={ SpinnerSize.medium  } /> : null }
             { returnMessage ? <MyMessageBar message = { returnMessage } messageType = "Error" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
@@ -222,31 +225,39 @@ const callAPIandFillExcelQualified = async (requesterVATID) => {
         let vatRange
         let citiesRange 
         let AreaCodesRange
+        let companyNamesRange
+        let companyTypeRange
         try{
             vatRange = myExcelInstance.workbook.bindings.getItem("bindingVatIdsRange").getRange()
-            citiesRange = myExcelInstance.workbook.bindings.getItem("bindingCitiesRange").getRange()
-            AreaCodesRange = myExcelInstance.workbook.bindings.getItem("bindingAreaCodeRange").getRange()
+            citiesRange = myExcelInstance.workbook.bindings.getItem("CitiesRange").getRange()
+            AreaCodesRange = myExcelInstance.workbook.bindings.getItem("AreaCodesRange").getRange()
+            companyNamesRange = myExcelInstance.workbook.bindings.getItem("CompanyNames").getRange()
+            companyTypeRange = myExcelInstance.workbook.bindings.getItem("CompanyTypes").getRange()
         } catch (e) {
             console.log(e)
         }
         vatRange.load("text");
         citiesRange.load("text");
         AreaCodesRange.load("text");
+        companyNamesRange.load("text");
+        companyTypeRange.load("text");
         const worksheets = myExcelInstance.workbook.worksheets; //used later to determine name of new sheet
         worksheets.load("items/name");
         await myExcelInstance.sync();
         const selectedVatIDs = vatRange.text;
         const selectedCities = citiesRange.text;
         const selectedAreaCodes = AreaCodesRange.text;
+        const selectedNames = companyNamesRange.text;
+        const selectedTypes = companyTypeRange.text;
         
     //create the javascript object to post
         const ownAPIJsons = [];
         for ( let i = 0; i++; i< selectedVatIDs.length) {
             ownAPIJsons.push({
                 vatID: selectedVatIDs[i],
-                traderName: "",
-                traderCompanyType: "",
-                traderStreet: "",
+                traderName: selectedNames[i],
+                traderCompanyType: selectedTypes[i],
+                traderStreet: "", //TODO fehlt noch
                 traderPostcode: selectedAreaCodes[i],
                 traderCity: selectedCities[i],
                 requestervatID : requesterVATID
@@ -333,7 +344,6 @@ const callAPIandFillExcelQualified = async (requesterVATID) => {
                 console.log(apiAllJSONResponses[i])
                 thisRowValues = [[apiAllJSONResponses[i].countryCode + apiAllJSONResponses[i].vatNumber, apiAllJSONResponses[i].countryCode, apiAllJSONResponses[i].valid, apiAllJSONResponses[i].traderName, apiAllJSONResponses[i].traderAddress, apiAllJSONResponses[i].requestIdentifier]];
             } else {
-                console.log("test")
                 thisRowValues = [ownAPIJsons[i].vatID, "", "not a VatID", "","", ""];
                 
             };
