@@ -23,9 +23,10 @@ const CellBinders = (props) => {
       }, [props.EnableBindings]);
     
     const handleBindingButton= async(rangeType) => {
+        console.log("Click");
         Office.context.document.bindings.addFromPromptAsync(
             Office.BindingType.Matrix,
-            { id: rangeType, promptText: 'Select the given ' & rangeType & ':' }
+            { id: rangeType, promptText: 'Select the given ' + rangeType }
             //just create the binding via prompt over the common API 2013
             // in hindsight , i dont remember the difference between this API 2013 call and the later API 2016 call.
         )
@@ -55,7 +56,7 @@ const CellBinders = (props) => {
             <Stack horizontal horizontalAlign='center' style={{}}>
                 <Stack.Item>
                     <DefaultButton
-                    text='Vat IDs Range' onClick={ () => handleBindingButton("bindingVatIdsRange") }
+                    text='Vat IDs Range' onClick={ () => handleBindingButton("VatIDs") }
         	        />
                 </Stack.Item>
                 <StackItem>

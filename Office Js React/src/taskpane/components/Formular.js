@@ -89,7 +89,7 @@ const MainFormular = () => {
 const callAPIandFillExcel = async (requesterVATID) => { 
     await Excel.run(async(myExcelInstance) => { 
         let vatRange
-        vatRange = myExcelInstance.workbook.bindings.getItem("bindingVatIdsRange").getRange();
+        vatRange = myExcelInstance.workbook.bindings.getItem("VATIDs").getRange();
         vatRange.load("text");
         const worksheets = myExcelInstance.workbook.worksheets; //used later to determine name of new sheet
         worksheets.load("items/name");
@@ -228,7 +228,7 @@ const callAPIandFillExcelQualified = async (requesterVATID) => {
         let companyNamesRange
         let companyTypeRange
         try{
-            vatRange = myExcelInstance.workbook.bindings.getItem("bindingVatIdsRange").getRange()
+            vatRange = myExcelInstance.workbook.bindings.getItem("VATIDs").getRange()
             citiesRange = myExcelInstance.workbook.bindings.getItem("CitiesRange").getRange()
             AreaCodesRange = myExcelInstance.workbook.bindings.getItem("AreaCodesRange").getRange()
             companyNamesRange = myExcelInstance.workbook.bindings.getItem("CompanyNames").getRange()
