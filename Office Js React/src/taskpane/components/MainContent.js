@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { MainFormular } from './Formular';
-import { Label, Pivot, PivotItem } from '@fluentui/react';
+import { Pivot, PivotItem } from '@fluentui/react';
 import { FeedbackTab } from './Feedback';
 import { WelcomePage } from './WelcomePage';
 
 var myConfig = require('../../../config.json'); //TODO Multilanguage Support
+// this component holds the State of the Formulars.
 
 const MainContent_Window = () => {
     // the props for the Feedback Tab
@@ -26,7 +27,7 @@ const MainContent_Window = () => {
     const [AreaCodeRange, setAreaCodeRange] = React.useState("");
     const [CompanyNames, setCompanyNameRange] = React.useState("");
     const [CompanyTypes, setCompanyTypeRange] = React.useState("");
-    const propsMainFormularTab = {
+    const propsMainFormularTab = { //this later gets destructured. This way we do not clutter the HTML with a mass of props
         ustID: ustID,
         setustID: setustID,
         enableUStID: enableUStID,
