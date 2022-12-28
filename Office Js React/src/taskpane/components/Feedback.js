@@ -6,8 +6,8 @@ import { MyMessageBar } from './MyMessageBar';
 import { Stack, Label, PrimaryButton } from '@fluentui/react'
 var myConfig = require('../../../config.json');
 
-const FeedbackTab = () => {
-    const [feedbackText, setFeedbackText] = React.useState("");
+const FeedbackTab = (props) => {
+    const { feedbackText, setFeedbackText } = props; //destructure the Props to simple Variable
     const [successMessage, setSuccessMessage] = React.useState("");
     const [isLoading, setIsLoading] = React.useState(false);
 
@@ -41,7 +41,7 @@ const FeedbackTab = () => {
         <Stack>
             <Label>
                 Feedback
-            <TextField multiline rows={5} value = { feedbackText } onChange = {(e) => setFeedbackText(e.target.value)}>
+            <TextField multiline rows={7} value = { feedbackText } onChange = {(e) => setFeedbackText(e.target.value)}>
             </TextField>
             </Label>
             <PrimaryButton text = "Send" onClick= { handleSubmitButton} disabled = { !feedbackText} />

@@ -1,10 +1,9 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import Progress from "./Progress";
-import { MainFormular } from "./Formular";
-import { FeedbackTab } from "./Feedback";
-import { Label, Pivot, PivotItem } from '@fluentui/react';
-import { WelcomePage } from "./WelcomePage";
+import { MainContent_Window } from "./MainContent";
+
+
 /* global console, Excel, require */
 
 export default class App extends React.Component {
@@ -53,19 +52,8 @@ export default class App extends React.Component {
           LU26375245
         </div>
         <div className = "mainBody">
-          <Pivot>
-            <PivotItem headerText= "Welcome" style={{margin:5}}>
-              <WelcomePage/>
-            </PivotItem>
-            <PivotItem headerText = "Vat Id Check" style={{ margin: 5}}>
-              <MainFormular></MainFormular>
-            </PivotItem>
-            <PivotItem headerText="Feedback" style={{ margin :5}}>
-              <FeedbackTab></FeedbackTab>
-            </PivotItem>
-            
-          </Pivot>
-          
+          <MainContent_Window></MainContent_Window>
+                   
         </div>
 
       </div>

@@ -11,18 +11,15 @@ var myConfig = require('../../../config.json'); //TODO Multilanguage Support
 
 
 
-const MainFormular = () => {
-    const [ustID, setustID] = React.useState("");
-    const [enableUStID, setEnableUStID] = React.useState(false)
+const MainFormular = (myProps) => {
     const [isLoading, setIsLoading] = React.useState(false)
     const [returnMessage, setReturnMessage] = React.useState("");
     const [successMessage, setSuccessMessage] = React.useState("");
-    const [VatRange, setVatRange] = React.useState("");
-    const [CitiesRange, setCitiesRange] = React.useState("");
-    const [AreaCodeRange, setAreaCodeRange] = React.useState("");
-    const [CompanyNames, setCompanyNameRange] = React.useState("");
-    const [CompanyTypes, setCompanyTypeRange] = React.useState("");
     
+    //get Props from Uplifted State:
+    const { props} = myProps; //to destructe Props we have to first destructure the props object created when downlifting.
+    const { ustID, setustID, enableUStID, setEnableUStID, VatRange, setVatRange, CitiesRange, setCitiesRange, AreaCodeRange,
+        setAreaCodeRange, CompanyNames, setCompanyNameRange, CompanyTypes, setCompanyTypeRange} = props;
 
     const handleSubmit = (event) => { //unused.
         event.preventDefault();
@@ -65,7 +62,7 @@ const MainFormular = () => {
     return (
         <Stack> 
             
-            <Checkbox label={myConfig.CheckboxLabel} value = {enableUStID} onChange= { handleCheckboxChange }/> 
+            <Checkbox label={myConfig.CheckboxLabel} value = {enableUStID} checked = {enableUStID} onChange= { handleCheckboxChange }/> 
             <Label> 
                     {myConfig.TextFieldLabelText}
             <TextField 

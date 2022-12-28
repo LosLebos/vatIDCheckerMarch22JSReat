@@ -14,7 +14,7 @@ const CellBinders = (props) => {
     // AreaCodeRange, setAreaCodeRange
     // CompanyNames, setCompanyNameRange
     // CompanyTypes , setCompanyTypeRange
-
+    
     const [errorMessage, setErrorMessage] = React.useState("");
 
     useEffect(() => { //Sets all Props to "" whenever EnableBindings changes, with the exception of the VatRange // I took this out might not be wanted.
