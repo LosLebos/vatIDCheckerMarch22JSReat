@@ -66,23 +66,20 @@ const CellBinders = (props) => {
     return (
         <>
         <Stack vertical gap = { 5 } style = {{ marginBottom: 10 }}>
-            <Stack horizontal horizontalAlign='center' style={{}}>
-                <Stack.Item>
-                    <DefaultButton
+            <Stack.Item horizontal horizontalAlign='left' style={{}}>
+                
+                <DefaultButton
                     text='Vat IDs Range' onClick={ () => handleBindingButton("VatIDs", props.setVatRange) }
         	        />
-                </Stack.Item>
-                <StackItem>
-                    <TextField
-                    //   prefix="Vat ID Range"
-                        disabled = {true}
-                        onChange = { (e) => props.setVatRange(e.target.value) }
-                        value = { props.VatRange }>
-                    </TextField>
-                </StackItem>
+                <TextField
+                //   prefix="Vat ID Range"
+                    disabled = {true}
+                    onChange = { (e) => props.setVatRange(e.target.value) }
+                    value = { props.VatRange }>
+                </TextField>
                 
-            </Stack>
-            <Stack horizontal style={{}} horizontalAlign = "left">
+            </Stack.Item>
+            <Stack.Item horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings }
                 text='Cities Range' onClick={ () => handleBindingButton('CitiesRange', props.setCitiesRange)}
@@ -91,10 +88,11 @@ const CellBinders = (props) => {
              //   prefix="Cities Range"
                 disabled={true}
                 onChange = { (e) => props.setCitiesRange(e.target.value) }
-                value = { props.CitiesRange }>
+                value = { props.CitiesRange }
+                >
             </TextField>
-            </Stack>
-            <Stack horizontal style={{}} horizontalAlign = "left">
+            </Stack.Item>
+            <Stack.Item horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings}
                 text='Area Code Range' onClick={ () =>handleBindingButton('AreaCodesRange', props.setAreaCodeRange)}
@@ -105,8 +103,8 @@ const CellBinders = (props) => {
             onChange = { (e) => props.setAreaCodeRange(e.target.value) }
             value = { props.AreaCodeRange }>
             </TextField>
-            </Stack>
-            <Stack horizontal style={{}} horizontalAlign = "left">
+            </Stack.Item>
+            <Stack.Item horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings}
                 text='Company Name Range' onClick={ () => handleBindingButton('CompanyNames', props.setCompanyNameRange) }
@@ -117,8 +115,8 @@ const CellBinders = (props) => {
             onChange = { (e) => props.setCompanyNameRange(e.target.value) }
             value = { props.CompanyNames }>
             </TextField>
-            </Stack>
-            <Stack horizontal style={{}} horizontalAlign = "left">
+            </Stack.Item>
+            <Stack.Item horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings}
                 text='Company Type Range' onClick={ () => handleBindingButton('CompanyTypes', props.setCompanyTypeRange) }
@@ -129,7 +127,7 @@ const CellBinders = (props) => {
             onChange = { (e) => props.setCompanyTypeRange(e.target.value) }
             value = { props.CompanyTypes }>
             </TextField>
-            </Stack>
+            </Stack.Item>
         </Stack>
             { errorMessage ? <MyMessageBar message = { errorMessage} messageType = "Error" handleMessageBarDismiss= { handleMessageBarDismiss } /> : null }
         </>
