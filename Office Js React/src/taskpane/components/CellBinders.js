@@ -12,38 +12,51 @@ const CellBinders = (props) => {
     // VatRange, setVatRange
     // CitiesRange, setCitiesRange
     // AreaCodeRange, setAreaCodeRange
+    // CompanyNames, setCompanyNameRange
+    // CompanyTypes , setCompanyTypeRange
+
     const [errorMessage, setErrorMessage] = React.useState("");
 
-    useEffect(() => { 
-        props.setVatRange("");
-        props.setCitiesRange("");
-        props.setAreaCodeRange("");
-        props.setCompanyNameRange("");
-        props.setCompanyTypeRange("");
+    useEffect(() => { //Sets all Props to "" whenever EnableBindings changes, with the exception of the VatRange // I took this out might not be wanted.
+        //props.setVatRange("");
+        //props.setCitiesRange("");
+        //props.setAreaCodeRange("");
+        //props.setCompanyNameRange("");
+        //rops.setCompanyTypeRange("");
       }, [props.EnableBindings]);
     
-    const handleBindingButton= async(rangeType) => {
-        console.log("Click");
+    const handleSelectionChangeOfBindings = async (binding) => {
+        console.log(binding.id)
+    }
+    const handleBindingButton= async(rangeType, setterOfTheRangeToChange) => {
+        let selectedRange;
         Office.context.document.bindings.addFromPromptAsync(
             Office.BindingType.Matrix,
             { id: rangeType, promptText: 'Select the given ' + rangeType }
             //just create the binding via prompt over the common API 2013
-            // in hindsight , i dont remember the difference between this API 2013 call and the later API 2016 call.
-        )
+            // the Office API is older. I neverstheless use is to create the binding. The Excel API is newer and I later use it to work with the Bindings.
+        );
 
         await Excel.run(async (context) => {
             try{
-                let bindingRange = context.workbook.bindings.getItem(rangeType) //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
-                let range = bindingRange.getRange();
+                let binding = context.workbook.bindings.getItem(rangeType) //get the binding via the excel API 2016 to get an Excel.Binding object which has the getRange() method
+                let range = binding.getRange();
+                binding.onSelectionChanged.add(handleSelectionChangeOfBindings);
                 range.load("address");
                 range.select();
                 await context.sync();
-                props.setVatRange(range.address);
+                selectedRange =  range.address;
             } catch (error) {
-                console.log(error.message)
+                console.log(error.message);
+                selectedRange = "";
+            } finally {
+                console.log(selectedRange);
+                setterOfTheRangeToChange(selectedRange); //in JS you can give Functions in Variables. The setterOfTheRangeToChange represents the function to change the correct State.
+
             }
             
         })
+
     }
     
     const handleMessageBarDismiss = () => {
@@ -56,7 +69,7 @@ const CellBinders = (props) => {
             <Stack horizontal horizontalAlign='center' style={{}}>
                 <Stack.Item>
                     <DefaultButton
-                    text='Vat IDs Range' onClick={ () => handleBindingButton("VatIDs") }
+                    text='Vat IDs Range' onClick={ () => handleBindingButton("VatIDs", props.setVatRange) }
         	        />
                 </Stack.Item>
                 <StackItem>
@@ -65,14 +78,14 @@ const CellBinders = (props) => {
                         disabled = {true}
                         onChange = { (e) => props.setVatRange(e.target.value) }
                         value = { props.VatRange }>
-                        </TextField>
+                    </TextField>
                 </StackItem>
                 
             </Stack>
             <Stack horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings }
-                text='Cities Range' onClick={ () =>handleBindingButton('CitiesRange') }
+                text='Cities Range' onClick={ () => handleBindingButton('CitiesRange', props.setCitiesRange)}
         	/>
             <TextField
              //   prefix="Cities Range"
@@ -84,7 +97,7 @@ const CellBinders = (props) => {
             <Stack horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings}
-                text='Area Code Range' onClick={ () =>handleBindingButton('AreaCodesRange') }
+                text='Area Code Range' onClick={ () =>handleBindingButton('AreaCodesRange', props.setAreaCodeRange)}
         	/>
             <TextField 
             //prefix="Area Code Range"
@@ -96,25 +109,25 @@ const CellBinders = (props) => {
             <Stack horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings}
-                text='Company Name Range' onClick={ () =>handleBindingButton('CompanyNames') }
+                text='Company Name Range' onClick={ () => handleBindingButton('CompanyNames', props.setCompanyNameRange) }
         	/>
             <TextField 
             //prefix="Area Code Range"
             disabled={ true }
             onChange = { (e) => props.setCompanyNameRange(e.target.value) }
-            value = { props.AreaCodeRange }>
+            value = { props.CompanyNames }>
             </TextField>
             </Stack>
             <Stack horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
                 disabled={ !props.EnableBindings}
-                text='Company Type Range' onClick={ () =>handleBindingButton('CompanyTypes') }
+                text='Company Type Range' onClick={ () => handleBindingButton('CompanyTypes', props.setCompanyTypeRange) }
         	/>
             <TextField 
             //prefix="Area Code Range"
             disabled={ true }
             onChange = { (e) => props.setCompanyTypeRange(e.target.value) }
-            value = { props.AreaCodeRange }>
+            value = { props.CompanyTypes }>
             </TextField>
             </Stack>
         </Stack>
