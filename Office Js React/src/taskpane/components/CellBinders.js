@@ -26,7 +26,8 @@ const CellBinders = (props) => {
       }, [props.EnableBindings]);
     
     const handleSelectionChangeOfBindings = async (binding) => {
-        console.log(binding.id)
+        //this is unused, I left it in so I know how to use a handler if wanted.
+        //console.log(binding.id)
     }
     const handleBindingButton= async(rangeType, setterOfTheRangeToChange) => {
         let selectedRange;
@@ -34,7 +35,7 @@ const CellBinders = (props) => {
             Office.BindingType.Matrix,
             { id: rangeType, promptText: 'Select the given ' + rangeType }
             //just create the binding via prompt over the common API 2013
-            // the Office API is older. I neverstheless use is to create the binding. The Excel API is newer and I later use it to work with the Bindings.
+            // the Office API is older. I nevertheless use is to create the binding. The Excel API is newer and I later use it to work with the Bindings.
         );
 
         await Excel.run(async (context) => {
@@ -50,7 +51,6 @@ const CellBinders = (props) => {
                 console.log(error.message);
                 selectedRange = "";
             } finally {
-                console.log(selectedRange);
                 setterOfTheRangeToChange(selectedRange); //in JS you can give Functions in Variables. The setterOfTheRangeToChange represents the function to change the correct State.
 
             }

@@ -189,14 +189,12 @@ const callAPIandFillExcel = async (requesterVATID) => {
         
         //insert the values
         let lengthOfReturn = apiAllJSONResponses.length;
-        console.log(ownAPIJsons[1])
         for (let i = 0; i < lengthOfReturn; i++) {
             let thisRowValues = []
             if(apiAllJSONResponses[i]) {
                 console.log(apiAllJSONResponses[i])
                 thisRowValues = [[apiAllJSONResponses[i].countryCode + apiAllJSONResponses[i].vatNumber, apiAllJSONResponses[i].countryCode, apiAllJSONResponses[i].valid, apiAllJSONResponses[i].traderName, apiAllJSONResponses[i].traderAddress, apiAllJSONResponses[i].requestIdentifier]];
             } else {
-                console.log("test")
                 thisRowValues = [ownAPIJsons[i].vatID, "", "not a VatID", "","", ""];
                 console.log({thisRowValues})
             };
@@ -224,7 +222,7 @@ const callAPIandFillExcelQualified = async (requesterVATID) => {
         let AreaCodesRange
         let companyNamesRange
         let companyTypeRange
-        try{
+        try{ //TODO , What to do when Binding does not exist.
             vatRange = myExcelInstance.workbook.bindings.getItem("VatIDs").getRange()
             citiesRange = myExcelInstance.workbook.bindings.getItem("CitiesRange").getRange()
             AreaCodesRange = myExcelInstance.workbook.bindings.getItem("AreaCodesRange").getRange()
