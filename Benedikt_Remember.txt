@@ -4,3 +4,5 @@ run via npm run start
 
 
 First cd to the vatIDCheckerMarch22JSReact Folder and then further into the Office Js React Folder where the package.json is located.
+
+There are two Branches. CoreVersion to create the basic product and reroll feature creep.
