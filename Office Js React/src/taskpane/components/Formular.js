@@ -83,11 +83,31 @@ const MainFormular = (myProps) => {
     )
 }
 
+const getRangeValuesAsArrayByBindingName = async (bindingName, ExcelInstance) => {
+    let bindingRange
+    let textReturnArray
+    bindingRange = ExcelInstance.workbook.bindings.getItem(bindingName).getRange();
+    bindingRange.load("text");
+    try {
+        await ExcelInstance.sync();
+        textReturnArray = bindingRange.text;
+    } catch (error) {
+        if(error.code == "ItemNotFound") {
+            textReturnArray = []; // if no binding exists, return an empty Array instead. Wonder if this need to be an array of lenght x
+            //textReturnArray = Array.from("".repeat(x));
+        } else {
+            console.log("Error in getRange function")
+            throw error;
+        }
+    } finally {
+        return textReturnArray;
+    };
+}
+
 const callAPIandFillExcel = async (requesterVATID) => { 
+    console.log("API call with UNqualified:")
     await Excel.run(async(myExcelInstance) => { 
-        let vatRange
-        vatRange = myExcelInstance.workbook.bindings.getItem("VatIDs").getRange();
-        vatRange.load("text");
+        const selectedVatIDs = await getRangeValuesAsArrayByBindingName("VatIDs", myExcelInstance);
         const worksheets = myExcelInstance.workbook.worksheets; //used later to determine name of new sheet
         worksheets.load("items/name");
         try {
@@ -99,8 +119,6 @@ const callAPIandFillExcel = async (requesterVATID) => {
                 throw error;
             }
         }
-
-        const selectedVatIDs = vatRange.text;
 
     //create the javascript object to post
         const ownAPIJsons = [];
@@ -216,35 +234,16 @@ const callAPIandFillExcel = async (requesterVATID) => {
     
 
 const callAPIandFillExcelQualified = async (requesterVATID) => { 
+    console.log("API call with Qualified:")
     await Excel.run(async(myExcelInstance) => { 
-        let vatRange
-        let citiesRange 
-        let AreaCodesRange
-        let companyNamesRange
-        let companyTypeRange
-        try{ //TODO , What to do when Binding does not exist.
-            vatRange = myExcelInstance.workbook.bindings.getItem("VatIDs").getRange()
-            citiesRange = myExcelInstance.workbook.bindings.getItem("CitiesRange").getRange()
-            AreaCodesRange = myExcelInstance.workbook.bindings.getItem("AreaCodesRange").getRange()
-            companyNamesRange = myExcelInstance.workbook.bindings.getItem("CompanyNames").getRange()
-            companyTypeRange = myExcelInstance.workbook.bindings.getItem("CompanyTypes").getRange()
-        } catch (e) {
-            console.log(e)
-        }
-        vatRange.load("text");
-        citiesRange.load("text");
-        AreaCodesRange.load("text");
-        companyNamesRange.load("text");
-        companyTypeRange.load("text");
+        const selectedVatIDs =  await getRangeValuesAsArrayByBindingName("VatIDs", myExcelInstance)
+        const selectedCities = await getRangeValuesAsArrayByBindingName("CitiesRange", myExcelInstance)
+        const selectedAreaCodes = await getRangeValuesAsArrayByBindingName("AreaCodesRange", myExcelInstance)
+        const selectedNames = await getRangeValuesAsArrayByBindingName("CompanyNames", myExcelInstance)
+        const selectedTypes = await getRangeValuesAsArrayByBindingName("CompanyTypes", myExcelInstance)
         const worksheets = myExcelInstance.workbook.worksheets; //used later to determine name of new sheet
         worksheets.load("items/name");
         await myExcelInstance.sync();
-        const selectedVatIDs = vatRange.text;
-        const selectedCities = citiesRange.text;
-        const selectedAreaCodes = AreaCodesRange.text;
-        const selectedNames = companyNamesRange.text;
-        const selectedTypes = companyTypeRange.text;
-        
     //create the javascript object to post
         const ownAPIJsons = [];
         for ( let i = 0; i++; i< selectedVatIDs.length) {
