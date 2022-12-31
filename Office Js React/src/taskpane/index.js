@@ -28,9 +28,9 @@ Office.onReady(() => {
   isOfficeInitialized = true;
   var myConfig = require('../../config.json'); 
   const deleteExistingBindings = async (bindingName) => {
-    await Excel.run(async(myExcelInstance) => { 
+    await Excel.run(async() => { 
       console.log({bindingName})
-      myExcelInstance.Office.bindings.releaseByIdAsync(bindingName);
+      Office.context.document.bindings.releaseByIdAsync(bindingName); 
     }  )
   }
   console.log(myConfig.listOfBindings)
