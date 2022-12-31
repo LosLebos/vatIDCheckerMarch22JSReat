@@ -4,21 +4,21 @@ import { Checkbox, Stack, Label, PrimaryButton,  ThemeSettingName, Text } from '
 import { TextField } from '@fluentui/react';
 import { Spinner, SpinnerSize } from '@fluentui/react';
 import { MyMessageBar } from './MyMessageBar';
-import { CellBinders_Unqualified } from './Binders_Unqualified';
+import { CellBinders_Qualified } from './Binders_Qualified';
 
 var myConfig = require('../../../config.json'); //TODO Multilanguage Support
 
 
 
 
-const MainFormular = (myProps) => {
+const MainFormular_Qualified = (myProps) => {
     const [isLoading, setIsLoading] = React.useState(false)
     const [returnMessage, setReturnMessage] = React.useState("");
     const [successMessage, setSuccessMessage] = React.useState("");
     
     //get Props from Uplifted State:
     const { props} = myProps; //to destructe Props we have to first destructure the props object created when downlifting.
-    const { ustID, setustID,  VatRange, setVatRange, VatRangeQualified, setVatRangeQualified, CitiesRange, setCitiesRange, AreaCodeRange,
+    const { ustID, setustID, VatRange, setVatRange, VatRangeQualified, setVatRangeQualified, CitiesRange, setCitiesRange, AreaCodeRange,
         setAreaCodeRange, CompanyNames, setCompanyNameRange, CompanyTypes, setCompanyTypeRange} = props;
 
     const handleSubmit = (event) => { //unused.
@@ -31,8 +31,7 @@ const MainFormular = (myProps) => {
             setReturnMessage("");
             setSuccessMessage("");
             setIsLoading(true);
-            
-            await callAPIandFillExcel(ustID); //the main path
+            await callAPIandFillExcelQualified(ustID);
             
             setIsLoading(false);
             setReturnMessage("");
@@ -64,7 +63,9 @@ const MainFormular = (myProps) => {
                 value = { ustID }
             />
             </Label>
-            <CellBinders_Unqualified VatRange={ VatRange} setVatRange = { setVatRange}> </CellBinders_Unqualified>
+            <CellBinders_Qualified VatRange={ VatRangeQualified} setVatRange = { setVatRangeQualified} CitiesRange = {CitiesRange} 
+                setCitiesRange = {setCitiesRange} AreaCodeRange = {AreaCodeRange} setAreaCodeRange = {setAreaCodeRange} CompanyNames = {CompanyNames} setCompanyNameRange = { setCompanyNameRange}
+                CompanyTypes = {CompanyTypes} setCompanyTypeRange= {setCompanyTypeRange}></CellBinders_Qualified>
             <PrimaryButton text = {myConfig.SendButtonText} onClick= { handleButtonClick } disabled= { isLoading }/>
             { isLoading ? <Spinner label= {myConfig.SpinnerInitialText} size={ SpinnerSize.medium  } /> : null }
             { returnMessage ? <MyMessageBar message = { returnMessage } messageType = "Error" handleMessageBarDismiss= {handleMessageBarDismiss}/> : null }
@@ -94,37 +95,35 @@ const getRangeValuesAsArrayByBindingName = async (bindingName, ExcelInstance) =>
     };
 }
 
-const callAPIandFillExcel = async (requesterVATID) => { 
-    console.log("API call with UNqualified:")
+
+    
+
+const callAPIandFillExcelQualified = async (requesterVATID) => { 
+    console.log("API call with Qualified:")
     await Excel.run(async(myExcelInstance) => { 
-        const selectedVatIDs = await getRangeValuesAsArrayByBindingName("VatIDs", myExcelInstance);
+        const selectedVatIDs =  await getRangeValuesAsArrayByBindingName("VatIDsQualified", myExcelInstance)
+        const selectedCities = await getRangeValuesAsArrayByBindingName("CitiesRange", myExcelInstance)
+        const selectedAreaCodes = await getRangeValuesAsArrayByBindingName("AreaCodesRange", myExcelInstance)
+        const selectedNames = await getRangeValuesAsArrayByBindingName("CompanyNames", myExcelInstance)
+        const selectedTypes = await getRangeValuesAsArrayByBindingName("CompanyTypes", myExcelInstance)
         const worksheets = myExcelInstance.workbook.worksheets; //used later to determine name of new sheet
         worksheets.load("items/name");
-        try {
-            await myExcelInstance.sync();
-        } catch (error) {
-            if (error.code == "ItemNotFound") {
-                throw new Error ("Item not found - Please select a Vat IDs Range.")
-            } else {
-                throw error;
-            }
-        }
-
+        await myExcelInstance.sync();
     //create the javascript object to post
         const ownAPIJsons = [];
-        for ( let i = 0; i< selectedVatIDs.length; i++) {
-            if (selectedVatIDs[i] !== "") {
-                ownAPIJsons.push({
-                    vatID: selectedVatIDs[i][0],
-                    traderName: "",
-                    traderCompanyType: "",
-                    traderStreet: "",
-                    traderPostcode: "",
-                    traderCity: "",
-                    requestervatID : requesterVATID
-                })
-            } 
+        for ( let i = 0; i++; i< selectedVatIDs.length) {
+            ownAPIJsons.push({
+                vatID: selectedVatIDs[i],
+                traderName: selectedNames[i],
+                traderCompanyType: selectedTypes[i],
+                traderStreet: "", //TODO fehlt noch
+                traderPostcode: selectedAreaCodes[i],
+                traderCity: selectedCities[i],
+                requestervatID : requesterVATID
+            }) 
         }
+
+
         //break it up in Chunks
         
         const maxAPICalls = myConfig.MaxApiCalls
@@ -137,7 +136,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
         for (let i = 0; i < ownAPIJsons.length; i += chunkSize) {
             const chunk = ownAPIJsons.slice(i, i + chunkSize);
             apiReturnPromises.push(makeTheAPICall(chunk));
-        }; //TODO Test what happends if ChunkSize > lenght.
+        };
         const apiResponses = await Promise.all(apiReturnPromises);
         
         //check if one gave back wrong status
@@ -147,7 +146,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
                 console.log(thisApiResponse)
                 console.log({statusResponseText})
                 let apiCallResponseError = new Error("The API returned an Error with Status Code " + String(thisApiResponse.status)+ "-"+statusResponseText+"- Please refer to the Developer if you cannot resolve this issue.")
-                throw apiCallResponseError //TODO Who catches this Error?
+                throw apiCallResponseError
             }
         };
         
@@ -193,10 +192,11 @@ const callAPIandFillExcel = async (requesterVATID) => {
         //create a table for this.
         let returnTable = ws.tables.add("A1:F1", true); //any name
         
-        returnTable.getHeaderRowRange().values = [["VatID", "Country", "isValid", "TraderName", "Address", "Consultation Number"]];
+        returnTable.getHeaderRowRange().values = [["VatID", "Country", "isValid", "TraderName", "Address", "ConstelationID"]];
         
         //insert the values
         let lengthOfReturn = apiAllJSONResponses.length;
+        console.log(ownAPIJsons[1])
         for (let i = 0; i < lengthOfReturn; i++) {
             let thisRowValues = []
             if(apiAllJSONResponses[i]) {
@@ -204,7 +204,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
                 thisRowValues = [[apiAllJSONResponses[i].countryCode + apiAllJSONResponses[i].vatNumber, apiAllJSONResponses[i].countryCode, apiAllJSONResponses[i].valid, apiAllJSONResponses[i].traderName, apiAllJSONResponses[i].traderAddress, apiAllJSONResponses[i].requestIdentifier]];
             } else {
                 thisRowValues = [ownAPIJsons[i].vatID, "", "not a VatID", "","", ""];
-                console.log({thisRowValues})
+                
             };
             returnTable.rows.add(null, thisRowValues);
         };
@@ -220,7 +220,7 @@ const callAPIandFillExcel = async (requesterVATID) => {
     
     return "done"; 
 };
-        
+
 async function makeTheAPICall(apiJSON) {
     console.log(JSON.stringify(apiJSON))
     try {
@@ -239,4 +239,4 @@ async function makeTheAPICall(apiJSON) {
     
 }
 
-export { MainFormular }
+export { MainFormular_Qualified }

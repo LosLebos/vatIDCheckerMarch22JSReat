@@ -6,9 +6,8 @@ import { TextField } from '@fluentui/react';
 import { MyMessageBar } from './MyMessageBar';
 var myConfig = require('../../../config.json');
 
-const CellBinders = (props) => {
+const CellBinders_Qualified = (props) => {
     // props:
-    // EnableBindings Boolean
     // VatRange, setVatRange
     // CitiesRange, setCitiesRange
     // AreaCodeRange, setAreaCodeRange
@@ -16,14 +15,6 @@ const CellBinders = (props) => {
     // CompanyTypes , setCompanyTypeRange
     
     const [errorMessage, setErrorMessage] = React.useState("");
-
-    useEffect(() => { //Sets all Props to "" whenever EnableBindings changes, with the exception of the VatRange // I took this out might not be wanted.
-        //props.setVatRange("");
-        //props.setCitiesRange("");
-        //props.setAreaCodeRange("");
-        //props.setCompanyNameRange("");
-        //rops.setCompanyTypeRange("");
-      }, [props.EnableBindings]);
     
     const handleSelectionChangeOfBindings = async (binding) => {
         //this is unused, I left it in so I know how to use a handler if wanted.
@@ -51,6 +42,8 @@ const CellBinders = (props) => {
                 console.log(error.message);
                 selectedRange = "";
             } finally {
+                console.log({selectedRange})
+                console.log({setterOfTheRangeToChange})
                 setterOfTheRangeToChange(selectedRange); //in JS you can give Functions in Variables. The setterOfTheRangeToChange represents the function to change the correct State.
 
             }
@@ -69,7 +62,7 @@ const CellBinders = (props) => {
             <Stack.Item horizontal horizontalAlign='left' style={{}}>
                 
                 <DefaultButton
-                    text='Vat IDs Range' onClick={ () => handleBindingButton("VatIDs", props.setVatRange) }
+                    text='Vat IDs Range' onClick={ () => handleBindingButton("VatIDsQualified", props.setVatRange) }
         	        />
                 <TextField
                 //   prefix="Vat ID Range"
@@ -81,7 +74,6 @@ const CellBinders = (props) => {
             </Stack.Item>
             <Stack.Item horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
-                disabled={ !props.EnableBindings }
                 text='Cities Range' onClick={ () => handleBindingButton('CitiesRange', props.setCitiesRange)}
         	/>
             <TextField
@@ -94,7 +86,6 @@ const CellBinders = (props) => {
             </Stack.Item>
             <Stack.Item horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
-                disabled={ !props.EnableBindings}
                 text='Area Code Range' onClick={ () =>handleBindingButton('AreaCodesRange', props.setAreaCodeRange)}
         	/>
             <TextField 
@@ -106,7 +97,6 @@ const CellBinders = (props) => {
             </Stack.Item>
             <Stack.Item horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
-                disabled={ !props.EnableBindings}
                 text='Company Name Range' onClick={ () => handleBindingButton('CompanyNames', props.setCompanyNameRange) }
         	/>
             <TextField 
@@ -118,7 +108,6 @@ const CellBinders = (props) => {
             </Stack.Item>
             <Stack.Item horizontal style={{}} horizontalAlign = "left">
             <DefaultButton
-                disabled={ !props.EnableBindings}
                 text='Company Type Range' onClick={ () => handleBindingButton('CompanyTypes', props.setCompanyTypeRange) }
         	/>
             <TextField 
@@ -135,4 +124,4 @@ const CellBinders = (props) => {
 }
 
 
-export { CellBinders }
+export { CellBinders_Qualified }

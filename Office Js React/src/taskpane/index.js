@@ -3,7 +3,10 @@ import { AppContainer } from "react-hot-loader";
 import { initializeIcons } from "@fluentui/font-icons-mdl2";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { warnMutuallyExclusive } from "@fluentui/react";
+
 /* global document, Office, module, require */
+
 
 initializeIcons();
 
@@ -23,6 +26,15 @@ const render = (Component) => {
 /* Render application after Office initializes */
 Office.onReady(() => {
   isOfficeInitialized = true;
+  var myConfig = require('../../config.json'); 
+  const deleteExistingBindings = async (bindingName) => {
+    await Excel.run(async(myExcelInstance) => { 
+      console.log({bindingName})
+      myExcelInstance.Office.bindings.releaseByIdAsync(bindingName);
+    }  )
+  }
+  console.log(myConfig.listOfBindings)
+  myConfig.listOfBindings.forEach(deleteExistingBindings)
   render(App);
 });
 
@@ -34,4 +46,5 @@ if (module.hot) {
     const NextApp = require("./components/App").default;
     render(NextApp);
   });
+
 }
